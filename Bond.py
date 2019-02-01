@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 class Bond(object):
     i = int()
     j = int()
