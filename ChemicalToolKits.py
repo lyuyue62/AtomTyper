@@ -5,7 +5,6 @@ from SmallMolecule import SmallMolecule
 
 class ChemicalToolKits(object):
     def __init__(self):
-        i = 0
         """ __init__ """
 
     def getDistance(self, r1, r2):
@@ -71,6 +70,7 @@ class ChemicalToolKits(object):
         return mol
 
     def readCGenFFBondParameters(self, file_name):
+        #"conflict?"
 
     def readCGenFFAngleParameters(self, file_name):
 
