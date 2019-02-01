@@ -858,7 +858,7 @@ class ChemicalToolKits(object):
         return atoms
 
     def setConjugatedAtoms(self, mol):
-
+        "testing conflict"
     public void setCarbonylAtoms( SmallMolecule mol, Vector<Edge> vRings ){
     public void setAmide( SmallMolecule mol, Vector<Edge> vRings ){
     public void setImineCarbon( SmallMolecule mol ){
