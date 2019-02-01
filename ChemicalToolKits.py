@@ -5,6 +5,7 @@ from SmallMolecule import SmallMolecule
 
 class ChemicalToolKits(object):
     def __init__(self):
+        i = 0
         """ __init__ """
         "testing conflict"
     def getDistance(self, r1, r2):
