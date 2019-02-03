@@ -6,6 +6,7 @@ from SmallMolecule import SmallMolecule
 class ChemicalToolKits(object):
     def __init__(self):
         """ __init__ """
+
     def getDistance(self, r1, r2):
         return math.sqrt((r1[0] - r2[0]) * (r1[0] - r2[0]) + (r1[1] - r2[1]) * (r1[1] - r2[1]) + (r1[2] - r2[2]) * (r1[2] - r2[2]))
 
@@ -69,7 +70,6 @@ class ChemicalToolKits(object):
         return mol
 
     def readCGenFFBondParameters(self, file_name):
-        #"conflict?"
 
     def readCGenFFAngleParameters(self, file_name):
 
@@ -858,37 +858,312 @@ class ChemicalToolKits(object):
         return atoms
 
     def setConjugatedAtoms(self, mol):
-        "testing conflict"
+
+
     public void setCarbonylAtoms( SmallMolecule mol, Vector<Edge> vRings ){
     public void setAmide( SmallMolecule mol, Vector<Edge> vRings ){
     public void setImineCarbon( SmallMolecule mol ){
     public void setOxidesLinkedToPhosphorousOrSulfur( SmallMolecule mol ){
     public void setEster( SmallMolecule mol ){
     public void setAtomProtonationState( SmallMolecule mol ){
-    public boolean hasDoubleBondedCarbon( SmallMolecule mol, int atm_index ){
-    public boolean hasDoubleBondedOxygen( SmallMolecule mol, int atm_index ){
-    public boolean hasDoubleBondedSulfur( SmallMolecule mol, int atm_index ){
-    public Vector<Edge> getInitialEdgesUsingBonds( SmallMolecule mol ){
-    public double getCutoffDistance( Atom atom_i, Atom atom_j ){
-    public int getMaximumNumberofCovalentBonds( String element ){
-    public int getNumRemainingVertex( Vector<Atom> vMol ){
-    public int chooseVertex( Vector<Atom> vMol ){
-    public int chooseSingleLinkedVertex( Vector<Atom> vMol ){
-    public void removeLinkage( Vector<Atom> vMol, int index ){
-    public void replaceLinkage( Vector<Atom> vMol, int vertex, int index_i, int index_j ){
-    public int getNumLinkages( Atom atom ){
+
+
+
+    def hasDoubleBondedCarbon(self, mol, atm_index):
+        atom = mol.atoms.elementAt(atm_index)
+        i = 0
+        while i < atom.num_linkages:
+            if atom.bondOrder[i] == 2 and mol.atoms.elementAt(atom.linkage[i]).element.lower() == "C".lower():
+                return True
+            i += 1
+        return False
+
+    def hasDoubleBondedOxygen(self, mol, atm_index):
+        atom = mol.atoms.elementAt(atm_index)
+        i = 0
+        while i < atom.num_linkages:
+            if atom.bondOrder[i] == 2 and mol.atoms.elementAt(atom.linkage[i]).element.lower() == "O".lower():
+                return True
+            i += 1
+        return False
+
+    def hasDoubleBondedSulfur(self, mol, atm_index):
+        atom = mol.atoms.elementAt(atm_index)
+        i = 0
+        while i < atom.num_linkages:
+            if atom.bondOrder[i] == 2 and mol.atoms.elementAt(atom.linkage[i]).element.lower() == "S".lower():
+                return True
+            i += 1
+        return False
+
+    def getInitialEdgesUsingBonds(self, mol):
+        vEdges = Vector()
+        edge = Edge()
+        i = int()
+        j = int()
+        b = 0
+        while b < len(mol.bonds):
+            edge = Edge()
+            i = mol.bonds.elementAt(b).i
+            j = mol.bonds.elementAt(b).j
+            if i < j:
+                edge.i = i
+                edge.j = j
+            else:
+                edge.i = j
+                edge.j = i
+            edge.path = edge.i + " " + edge.j
+            vEdges.add(edge)
+            b += 1
+        return vEdges
+
+    ## =====================================================
+    ## The cutoff bond lengths are based on
+    ## the maximum distances for given atom pairs in CGenFF (par_all36_cgen) and
+    ## the Handbook of Chemistry and Physics (63rd edition mostly, some information from the 75th        edition)
+    ## =====================================================
+    def getCutoffDistance(self, atom_i, atom_j):
+        if (atom_i.element.lower() == "C".lower() and atom_j.element.lower() == "CL".lower()) or (atom_i.element.lower() == "CL".lower() and atom_j.element.lower() == "C".lower()):
+            return 1.89
+        elif (atom_i.element.lower() == "N".lower() and atom_j.element.lower() == "P".lower()) or (atom_i.element.lower() == "P".lower() and atom_j.element.lower() == "N".lower()):
+            return 1.89
+        elif (atom_i.element.lower() == "C".lower() and atom_j.element.lower() == "S".lower()) or (atom_i.element.lower() == "S".lower() and atom_j.element.lower() == "C".lower()):
+            return 1.94
+        elif (atom_i.element.lower() == "C".lower() and atom_j.element.lower() == "P".lower()) or (atom_i.element.lower() == "P".lower() and atom_j.element.lower() == "C".lower()):
+            return 1.99
+        elif (atom_i.element.lower() == "C".lower() and atom_j.element.lower() == "BR".lower()) or (atom_i.element.lower() == "BR".lower() and atom_j.element.lower() == "C".lower()):
+            return 2.07
+        elif atom_i.element.lower() == "S".lower() and atom_j.element.lower() == "S".lower():
+            return 2.13
+        elif (atom_i.element.lower() == "C".lower() and atom_j.element.lower() == "I".lower()) or (atom_i.element.lower() == "I".lower() and atom_j.element.lower() == "C".lower()):
+            return 2.22
+        elif (atom_i.element.lower() == "C".lower() and atom_j.element.lower() == "SI".lower()) or (atom_i.element.lower() == "SI".lower() and atom_j.element.lower() == "C".lower()):
+            return 1.96
+        elif (atom_i.element.lower() == "C".lower() and atom_j.element.lower() == "SE".lower()) or (atom_i.element.lower() == "SE".lower() and atom_j.element.lower() == "C".lower()):
+            return 1.99
+        elif (atom_i.element.lower() == "C".lower() and atom_j.element.lower() == "AS".lower()) or (atom_i.element.lower() == "AS".lower() and atom_j.element.lower() == "C".lower()):
+            return 2.08
+        elif (atom_i.element.lower() == "C".lower() and atom_j.element.lower() == "TE".lower()) or (atom_i.element.lower() == "TE".lower() and atom_j.element.lower() == "C".lower()):
+            return 2.15
+        else:
+            return 1.85
+
+    def getMaximumNumberofCovalentBonds(self, element):
+        if element.lower() == "C".lower():
+            return 4
+        elif element.lower() == "N".lower():
+            return 4
+        elif element.lower() == "O".lower():
+            return 2
+        elif element.lower() == "P".lower():
+            return 5
+        elif element.lower() == "S".lower():
+            return 6
+        else:
+            return 1
+
+    def getNumRemainingVertex(self, vMol):
+        num = 0
+        num_atoms = len(vMol)
+        i = 0
+        while i < num_atoms:
+            if vMol.elementAt(i).isAvailable:
+                num += 1
+            i += 1
+        return num
+
+    def chooseVertex(self, vMol):
+        num_atoms = len(vMol)
+        index = -1
+        min_num_linkages = 10
+        i = 0
+        while i < num_atoms:
+            if vMol.elementAt(i).isAvailable:
+                if vMol.elementAt(i).num_linkages < min_num_linkages:
+                    min_num_linkages = vMol.elementAt(i).num_linkages
+                    index = i
+            i += 1
+        return index
+
+    def chooseSingleLinkedVertex(self, vMol):
+        num_atoms = len(vMol)
+        index = -1
+        i = 0
+        while i < num_atoms:
+            if vMol.elementAt(i).isAvailable:
+                if vMol.elementAt(i).num_linkages == 1:
+                    return i
+            i += 1
+        return index
+
+    def removeLinkage(self, vMol, index):
+        i = 0
+        while i < 5:
+            if vMol.elementAt(index).linkage[i] != -1:
+                while j < 5:
+                    if vMol.elementAt(vMol.elementAt(index).linkage[i]).linkage[j] == index:
+                        vMol.elementAt(vMol.elementAt(index).linkage[i]).linkage[j] = -1
+                        vMol.elementAt(vMol.elementAt(index).linkage[i]).num_linkages -= 1
+                        break
+                    j += 1
+            i += 1
+
+    def replaceLinkage(self, vMol, vertex, index_i, index_j):
+        i = 0
+        while i < 5:
+            if vMol.elementAt(index_i).linkage[i] == vertex:
+                vMol.elementAt(index_i).linkage[i] = index_j
+            if vMol.elementAt(index_j).linkage[i] == vertex:
+                vMol.elementAt(index_j).linkage[i] = index_i
+            i += 1
+
+    def getNumLinkages(self, atom):
+        num_linkages = 0
+        i = 0
+        while i < 5:
+            if atom.linkage[i] != -1:
+                num_linkages += 1
+            i += 1
+        return num_linkages
+
+
     public void remove( int vertex, Vector<Atom> vMol, Vector<Edge> vEdges, Vector<Edge> vRings ){
-    public String removeCommonVertex( String path_i, String path_j ){
-    public String mergePaths( String path_i, String path_j ){
-    public void removeLargeRings( Vector<Edge> vRings, int num_atoms ){
-    public void clearEdges( Vector<Edge> vEdges, int num_edges ){
-    public boolean isRing( Vector<Atom> vMol, Edge ring ){
-    public void removeNonRings( Vector<Atom> vMol, Vector<Edge> vRings ){
+
+
+    def removeCommonVertex(self, path_i, path_j):
+        array_i = path_i.split(" ")
+        array_j = path_j.split(" ")
+        new_path = ""
+        vertex_i = int()
+        vertex_j = int()
+        isCommonVertex = False
+        i = 0
+        while len(array_i):
+            vertex_i = Integer.parseInt(array_i[i])
+            isCommonVertex = False
+            while len(array_j):
+                vertex_j = Integer.parseInt(array_j[j])
+                if vertex_i == vertex_j:
+                    isCommonVertex = True
+                    break
+                j += 1
+            if not isCommonVertex:
+                new_path += array_i[i] + " "
+            i += 1
+        return new_path.trim()
+
+    def mergePaths(self, path_i, path_j):
+        array_i = path_i.split(" ")
+        array_j = path_j.split(" ")
+        new_path = ""
+        vertex_i = int()
+        vertex_j = int()
+        isCommonVertex = False
+        i = 0
+        while len(array_i):
+            vertex_i = Integer.parseInt(array_i[i])
+            isCommonVertex = False
+            while len(array_j):
+                vertex_j = Integer.parseInt(array_j[j])
+                if vertex_i == vertex_j:
+                    isCommonVertex = True
+                    break
+                j += 1
+            if not isCommonVertex:
+                new_path += array_i[i] + " "
+            i += 1
+        if 0 != len(length):
+            return new_path.trim() + " " + path_j
+        else:
+            return path_j
+
+    def removeLargeRings(self, vRings, num_atoms):
+        array = []
+        i = 0
+        while i < len(vRings):
+            array = vRings.elementAt(i).path.split(" ")
+            if len(array):
+                vRings.removeElementAt(i)
+                i -= 1
+            i += 1
+
+    def clearEdges(self, vEdges, num_edges):
+        array = []
+        i = 0
+        while i < len(vEdges):
+            array = vEdges.elementAt(i).path.split(" ")
+            if len(array):
+                vEdges.removeElementAt(i)
+                i -= 1
+            i += 1
+
+    def isRing(self, vMol, ring):
+        array = ring.path.split(" ")
+        num_atoms = int()
+        index_i = int()
+        index_j = int()
+        dist = float()
+        num_linkages = 0
+        i = 0
+        while i < num_atoms:
+            num_linkages = 0
+            index_i = Integer.parseInt(array[i])
+            while j < num_atoms:
+                index_j = Integer.parseInt(array[j])
+                if i != j:
+                    dist = getDistance(vMol.elementAt(index_i).R, vMol.elementAt(index_j).R)
+                    if dist < 1.85:
+                        num_linkages += 1
+                j += 1
+            if num_linkages == 1:
+                return False
+            i += 1
+        return True
+
+    def removeNonRings(self, vMol, vRings):
+        i = 0
+        while i < len(vRings):
+            if not isRing(vMol, vRings.elementAt(i)):
+                vRings.removeElementAt(i)
+                i -= 1
+            i += 1
+
     public void removeRedundantRings( Vector<Edge> vRings ){
     public void keepSmallestRings( Vector<Edge> vRings ){
-    public void mergeRings( Vector<Edge> vRings ){
 
-
-
-
+    def mergeRings(self, vRings):
+        edge_i = Edge()
+        edge_j = Edge()
+        path_1 = str()
+        path_2 = str()
+        array_1 = []
+        array_2 = []
+        mergeRings = True
+        while mergeRings:
+            mergeRings = False
+            while i < len(vRings):
+                edge_i = vRings.elementAt(i)
+                path_1 = edge_i.path
+                array_1 = path_1.split(" ")
+                while j < len(vRings):
+                    edge_j = vRings.elementAt(j)
+                    path_2 = edge_j.path
+                    array_2 = path_2.split(" ")
+                    while len(array_1):
+                        while len(array_2):
+                            if Integer.parseInt(array_1[s1]) == Integer.parseInt(array_2[s2]):
+                                mergeRings = True
+                                vRings.elementAt(i).path = mergePaths(path_1, path_2)
+                                vRings.removeElementAt(j)
+                                break
+                            s2 += 1
+                        if mergeRings:
+                            break
+                        s1 += 1
+                    if mergeRings:
+                        break
+                    j += 1
+                if mergeRings:
+                    break
+                i += 1
 
