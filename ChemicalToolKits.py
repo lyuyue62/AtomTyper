@@ -895,17 +895,17 @@ class ChemicalToolKits(object):
 				j += 1
 			i += 1
 		#
-		# 		print  len(mol.angles) ;
-		# 		for( int i = 0 ; i < len(mol.angles) ; i++ ){
-		# 			for( int j = i+1 ; j < len(mol.angles) ; j++ ){
-		# 				array = mol.angles.elementAt(j).linked_atoms.split( "-" );
-		# 				if( mol.angles.elementAt(i).linked_atoms.lower() ==  mol.angles.elementAt(j.lower().linked_atoms ) ){
-		# 					mol.angles.removeElementAt(j);
-		# 					j--;
-		# 				}
-		# 			}
-		# 		}
-		# 		print  len(vAngle) ;
+		#       print  len(mol.angles) ;
+		#       for( int i = 0 ; i < len(mol.angles) ; i++ ){
+		#           for( int j = i+1 ; j < len(mol.angles) ; j++ ){
+		#               array = mol.angles.elementAt(j).linked_atoms.split( "-" );
+		#               if( mol.angles.elementAt(i).linked_atoms.lower() ==  mol.angles.elementAt(j.lower().linked_atoms ) ){
+		#                   mol.angles.removeElementAt(j);
+		#                   j--;
+		#               }
+		#           }
+		#       }
+		#       print  len(vAngle) ;
 		#
 
 	def setDihderalList(self, mol):
@@ -1345,8 +1345,80 @@ class ChemicalToolKits(object):
 				i -= 1
 			i += 1
 
-	#public void removeRedundantRings( Vector<Edge> vRings ){
-	#public void keepSmallestRings( Vector<Edge> vRings ){
+	def removeRedundantRings(self, vRings ):
+
+		num_identical_atoms = 0
+
+		for i in range(len(vRings)):
+			edge_i = vRings[i]
+			array_1 = edge_i.path.split(" ")
+
+			for j in range(i+1, len(vRings)):
+				edge_j = vRings[j]
+				array_2 = edge_j.path.split(" ")
+
+				if len(array_1) == len(array_2):
+					num_identical_atoms = 0
+
+					for s1 in range(len(array_1)):
+						for s2 in range(len(array_2)):
+							if int(array_1[s1]) == int(array_2[s2]):
+								num_identical_atoms = num_identical_atoms + 1
+								break
+
+					if num_identical_atoms == len(array_2):
+						vRings.pop(j)
+						j = j - 1
+
+
+	def keepSmallestRings(self, vRings ):
+		num_identical_atoms = 0
+		option = 0
+		SubRingIsRemoved = True
+
+		while(SubRingIsRemoved):
+			SubRingIsRemoved = False
+
+			for i in range(len(vRings)):
+				edge_i = vRings[i]
+				array_1 = edge_i.path.split(" ")
+
+				for j in range(i+1, len(vRings)):
+					edge_j = vRings[j]
+					array_2 = edge_j.path.split(" ")
+
+					if len(array_1) <= len(array_2):
+						path_1 = edge_i.path
+						path_2 = edge_j.path
+						option = 1
+					else:
+						path_1 = edge_j.path
+						path_2 = edge_i.path
+						option = 2
+
+					array_1 = path_1.split(" ")
+					array_2 = path_2.split(" ")
+
+					num_identical_atoms = 0
+
+					for s1 in range(len(array_1)):
+						for s2 in range(len(array_2)):
+							if int(array_1[s1]) == int(array_2[s2]):
+								num_identical_atoms = num_identical_atoms + 1
+								break
+
+					if num_identical_atoms == len(array_1):
+						SubRingIsRemoved = True
+						if option == 1:
+							vRings.pop(j)
+						elif option == 2:
+							vRings.pop(i)
+						break
+
+				if SubRingIsRemoved:
+					break
+
+
 
 	def mergeRings(self, vRings):
 		edge_i = Edge()
