@@ -1080,13 +1080,186 @@ class ChemicalToolKits(object):
 		return atoms
 
 	def setConjugatedAtoms(self, mol):
+		# C=C-C=C: 212
+		# C=C-C=O: 212
+		# N=C-C=C: 212
+		# C=C(al)-C=C(ar): 21ar		
+		
+		# 1 = single
+		# 2 = double
+		# ar = aromatic
+		consecutive_elements = ""
+		consecutive_bonds = ""
 
-	#public void setCarbonylAtoms( SmallMolecule mol, Vector<Edge> vRings ){
-	#public void setAmide( SmallMolecule mol, Vector<Edge> vRings ){
-	#public void setImineCarbon( SmallMolecule mol ){
-	#public void setOxidesLinkedToPhosphorousOrSulfur( SmallMolecule mol ){
-	#public void setEster( SmallMolecule mol ){
-	#public void setAtomProtonationState( SmallMolecule mol ){
+		for i in range(len(mol.dihedrals)):
+			array = mol.dihedrals[i].linked_atoms.split("-")
+			consecutive_elements = ""
+			consecutive_bonds = ""
+
+			for j in range(4):
+				consecutive_elements = consecutive_elements + mol.atoms[int(array[j])].element
+
+			consecutive_elements = consecutive_elements.strip()
+
+			array = mol.dihedrals[i].linked_bonds.split("-")
+
+			for j in range(3):
+				consecutive_bonds = consecutive_bonds + mol.bonds[int(array[j])].bondType
+
+			if (consecutive_elements.lower() == "CCCC".lower()) or (consecutive_elements.lower() == "CCC0".lower()) or (consecutive_elements.lower() == "0CCC".lower())\
+				or (consecutive_elements.lower() == "NCCC".lower()) or (consecutive_elements.lower() == "CCCN".lower()) :
+				if (consecutive_bonds.lower() == "212") or (consecutive_bonds.lower() == "21ar") or (consecutive_bonds.lower() == "ar12"):
+					array = mol.dihedrals[i].linked_atoms.split("-")
+
+					for j in range(4):
+						mol.atoms[int(array[j])].isConjugated = True
+
+
+	def setCarbonylAtoms(self, mol, vRings ):
+		for i in range(len(mol.atoms)):
+			atom = mol.atoms[i]
+
+			if atom.element.lower() == "c" and atom.num_linkages == 3:
+				for j in range(atom.num_linkages):
+					atom_linked = mol.atoms[atom.linkage[j]]
+
+					if atom.bondOrder[j] == 2 and ((atom_linked.element.lower() == "o") or (atom_linked.element.lower() == "s")):
+						atom.isCarbonyl = True
+						atom_linked.isCarbonyl = True
+
+						if atom.numCarbonAtoms == 2:
+							atom.isKetone = True
+							atom_linked.isKetone = True
+
+						if atom_linked.element.lower() == "s":
+							atom_linked.isThiocarbonylS = True
+
+						break
+
+		hasCarbonyl = False
+
+		for i in range(len(vRings)):
+			hasCarbonyl = False
+			array = vRings[i].path.split(" ")
+			
+			for j in range(len(array)):
+				if mol.atoms[int(array[j])].isCarbonyl:
+					hasCarbonyl = True
+					break
+			
+			if hasCarbonyl:
+				for j in range(len(array)):
+					mol.atoms[int(array[j])].ringHasCabonyl = True
+
+
+	def setAmide(self, mol, vRings ):
+		for i in range(len(mol.atoms)):
+			atom = mol.atoms[i]
+
+			if atom.element.lower() == "n":
+				for j in range(atom.num_linkages):
+					if atom.bondType[j].lower() == "am":
+						atom.isAmide = True
+						mol.atoms[atom.linkage[j]].isAmide = True
+
+					if atom.bondOrder[j] == 1 and mol.atoms[atom.linkage[j]].element.lower() == "c":
+						if hasDoubleBondedOxygen( mol, atom.linkage[j] ) or hasDoubleBondedSulfur( mol, atom.linkage[j]):
+							atom.isAmide = True
+							mol.atoms[atom.linkage[j]].isAmide = True
+
+		hasAmide = False
+
+		for i in range(len(vRings)):
+			hasAmide = False
+			array = vRings[i].path.split(" ")
+			
+			for j in range(len(array)):
+				if mol.atoms[int(array[j])].isAmide:
+					hasAmide = True
+					break
+			
+			if hasAmide:
+				for j in range(len(array)):
+					mol.atoms[int(array[j])].ringHasAmide = True
+	
+	
+	def setImineCarbon(self, mol ):
+		num_atoms = len(mol.atoms)
+
+		for i in range(num_atoms):
+			atom = mol.atoms[i]
+
+			if atom.element.lower() == "c" and atom.num_linkages == 3 and atom.numNitrogenAtoms >= 1:
+				for j in range(atom.num_linkages):
+					if atom.bondOrder[j] == 2 or atom.bondType[j].lower() == "ar" and mol.atoms[atom.linkage[j]].element.lower() == "n":
+						atom.isImineCarbon = True
+						break
+
+	def setOxidesLinkedToPhosphorousOrSulfur(self, mol ):
+		num_atoms = len(mol.atoms)
+
+		for i in range(num_atoms):
+			atom = mol.atoms[i]
+
+			if atom.element.lower() == "p" and atom.numOxygenAtoms >= 1:
+				for j in range(atom.num_linkages):
+					atom_linked = mol.atoms[atom.linkage[j]]
+
+					if atom_linked.element.lower() == "o":
+						atom_linked.isPOxide = True
+
+			elif atom.element.lower() == "s" and atom.numOxygenAtoms >= 1:
+				for j in range(atom.num_linkages):
+					atom_linked = mol.atoms[atom.linkage[j]]
+
+					if atom_linked.element.lower() == "o":
+						atom_linked.isSOxide = True
+
+	def setEster(self, mol ):
+		num_atoms = len(mol.atoms)
+
+		for i in range(num_atoms):
+			atom = mol.atoms[i]
+
+			if atom.element.lower() == "c" and atom.num_linkages == 3 and atom.numOxygenAtoms >= 2:
+				atom.isEster = True
+
+				for j in range(3):
+					atom_linked = mol.atoms[atom.linkage[j]]
+					
+					if atom_linked.element.lower() == "o":
+						atom_linked.isEster = True
+
+	def setAtomProtonationState(self, mol ):
+		for i in range(len(mol.atoms)):
+			atom = mol.atoms[i]
+
+			if atom.element.lower() == "n" and atom.isAromatic == False and atom.num_linkages == 4:
+				atom.isProtonatedNitrogen = True
+			elif atom.element.lower() == "n" and atom.isAromatic == False and atom.num_linkages == 3 and atom.numHydrogenAtoms >= 1 and atom.totalBondOrder == 4:
+				atom.isProtonatedNitrogen = True
+			elif atom.element.lower() == "n" and atom.isAromatic == True and atom.num_linkages == 3 and atom.numHydrogenAtoms == 1:
+				atom.isProtonatedNitrogen = True
+			elif atom.element.lower() == "s" and atom.num_linkages == 1 and atom.numHydrogenAtoms == 0:
+				atom.isDeprotonatedSulfur = True
+			elif atom.element.lower() == "o" and atom.num_linkages == 1 and atom.bondOrder[0] == 1 and atom.numHydrogenAtoms == 0:
+				atom.isDeprotonatedOxygen = True
+
+			if atom.isProtonatedNitrogen == True:
+				for j in range(atom.num_linkages):
+					if mol.atoms[atom.linkage[j]].isImineCarbon:
+						mol.atoms[atom.linkage[j]].isPortonatedImineGroup = True
+						break
+
+			if atom.isDeprotonatedOxygen == True:
+				atom_linked = mol.atoms[atom.linkage[0]]
+
+				for j in range(atom_linked.num_linkages):
+					if mol.atoms[atom_linked.linkage[j]].element.lower() == "o" and mol.atoms[atom_linked.linkage[j]].num_linkages == 1 and \
+						mol.atoms[atom_linked.linkage[j]].numHydrogenAtoms == 0:
+						mol.atoms[atom_linked.linkage[j]].isDeprotonatedOxygen = True
+
+
 
 	def hasDoubleBondedCarbon(self, mol, atm_index):
 			atom = mol.atoms.elementAt(atm_index)
