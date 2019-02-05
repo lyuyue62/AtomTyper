@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 class AtomTypingHydrogen(object):
-
     def __init__(self):
-
+        """__init__"""
     def setAtomTypeForHydrogens(self, mol):
         num_atoms = len(mol.atoms)
         atom = Atom()

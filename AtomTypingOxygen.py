@@ -2,6 +2,7 @@
 
 class AtomTypingOxygen(object):
     def __init__(self):
+        """__init__"""
 
     def setAtomTypeForOxygens(self, mol):
         num_atoms = len(mol.atoms)

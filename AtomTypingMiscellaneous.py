@@ -2,7 +2,7 @@
 
 class AtomTypingMiscellaneous(object):
     def __init__(self):
-
+        """__init__"""
     def setAtomTypeForMiscellaneousAtoms(self, mol):
         num_atoms = len(mol.atoms)
         atom = Atom()

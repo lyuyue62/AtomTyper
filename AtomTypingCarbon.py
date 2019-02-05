@@ -2,6 +2,7 @@
 
 class AtomTypingCarbon(object):
     def __init__(self):
+        """__init__"""
 
     def setAtomTypeForCarbons(self, mol, aRingAromacity, aRingHasCabonyl):
         num_atoms = len(mol.atoms)

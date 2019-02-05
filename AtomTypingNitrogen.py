@@ -2,6 +2,7 @@
 
 class AtomTypingNitrogen(object):
     def __init__(self):
+        """__init__"""
 
     def setAtomTypingNitrogen(self, mol):
         num_atoms = len(mol.atoms)

@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
 class AtomTypingHalogen(object):
-
     def __init__(self):
-
+        """__init__"""
     def setAtomTypeForHalogens(self, mol):
         num_atoms = len(mol.atoms)
         atom = Atom()

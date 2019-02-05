@@ -2,6 +2,7 @@
 
 class AtomTypingSulfur(object):
     def __init__(self):
+        """__init__"""
 
     def setAtomTypeForSulfurs(self, mol):
         num_atoms = len(mol.atoms)
