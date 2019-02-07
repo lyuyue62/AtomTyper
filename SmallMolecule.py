@@ -32,15 +32,15 @@ class SmallMolecule:
 					break
 		
 			for j in range(5):
-				if  self.atoms[bonds[i].j].linkage[j] == -1:
-					self.atoms[bonds[i].j].linkage[j] = self.bonds[i].i
-					self.atoms[bonds[i].j].bondType[j] = self.bonds[i].bondType
-					self.atoms[bonds[i].j].num_linkages += 1
+				if  self.atoms[self.bonds[i].j].linkage[j] == -1:
+					self.atoms[self.bonds[i].j].linkage[j] = self.bonds[i].i
+					self.atoms[self.bonds[i].j].bondType[j] = self.bonds[i].bondType
+					self.atoms[self.bonds[i].j].num_linkages += 1
 					break
 			
 			if self.bonds[i].bondType.lower() ==  "ar":
-				self.atoms[bonds[i].i].isAromatic = True
-				self.atoms[bonds[i].j].isAromatic = True
+				self.atoms[self.bonds[i].i].isAromatic = True
+				self.atoms[self.bonds[i].j].isAromatic = True
 
 
 	def setBridgingAtoms(self):

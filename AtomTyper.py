@@ -45,8 +45,7 @@ if __name__=="__main__":
 
 
 
-    import ChemicalToolKits
-
+    from ChemicalToolKits import ChemicalToolKits
     mCTK = ChemicalToolKits()
     import AtomTypingCarbon as mATC
     import AtomTypingNitrogen as mATN
@@ -330,4 +329,4 @@ if __name__=="__main__":
     out.close()
 
 ##except Exception as e:
-##    logging.error(traceback.format_exc())
+#logging.error(traceback.format_exc())

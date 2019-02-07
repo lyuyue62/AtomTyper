@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 
 import math
+import traceback
+import logging
 from SmallMolecule import SmallMolecule
+from Atom import Atom
+from Bond import Bond
 
 class ChemicalToolKits(object):
     def __init__(self):
@@ -33,10 +37,10 @@ class ChemicalToolKits(object):
                         atom.R[0] = float(line.strip().split()[2])
                         atom.R[1] = float(line.strip().split()[3])
                         atom.R[2] = float(line.strip().split()[4])
-                        element = line.strio().split()[5]
-                        index = element.indexOf('.')
+                        element = line.strip().split()[5]
+                        index = element.find('.')
                         if index != -1:
-                            atom.element = element.substring(0, index)
+                            atom.element = element[0: index]
                         else:
                             atom.element = element
                         atom.element = atom.element.upper()
@@ -67,7 +71,7 @@ class ChemicalToolKits(object):
                             bond.i = j
                             bond.j = i
                         bond.bondType = line.strip().split()[3]
-                        mol.bonds.add(bond)
+                        mol.bonds.append(bond)
                     break
 
         f.close()
@@ -318,32 +322,32 @@ class ChemicalToolKits(object):
         atom = Atom()
         i = 0
         while i < num_atoms:
-            atom = mol.atoms.elementAt(i)
+            atom = mol.atoms[i]
             #  -1
             #  heavy atoms linked to OG2D2, OG312, SG302, OG2P1
             #  PG1 linked to OG2P1
             if atom.atomType.lower() == "OG2D2".lower() or atom.atomType.lower() == "OG312".lower() or atom.atomType.lower() == "SG302".lower() or atom.atomType.lower() == "OG2P1".lower():
                 while j < 5:
                     if atom.linkage[j] != -1:
-                        if mol.atoms.elementAt(atom.linkage[j]).element.charAt(0) == 'C' or mol.atoms.elementAt(atom.linkage[j]).element.charAt(0) == 'S':
-                            mol.atoms.elementAt(atom.linkage[j]).formal_charge = -1
+                        if mol.atoms[atom.linkage[j]].element[0] == 'C' or mol.atoms[atom.linkage[j]].element[0] == 'S':
+                            mol.atoms[atom.linkage[j]].formal_charge = -1
                     j += 1
             if atom.atomType.lower() == "OG2P1".lower():
-                if mol.atoms.elementAt(atom.linkage[0]).atomType.lower() == "PG1".lower():
+                if mol.atoms[atom.linkage[0]].atomType.lower() == "PG1".lower():
                     #  -1
                     #  PG1 linked to OG2P1
-                    mol.atoms.elementAt(atom.linkage[0]).formal_charge = -1
-                elif mol.atoms.elementAt(atom.linkage[0]).atomType.lower() == "PG2".lower():
+                    mol.atoms[atom.linkage[0]].formal_charge = -1
+                elif mol.atoms[atom.linkage[0]].atomType.lower() == "PG2".lower():
                     #  -2
                     #  PG2 linked to to OG2P1
-                    mol.atoms.elementAt(atom.linkage[0]).formal_charge = -2
+                    mol.atoms[atom.linkage[0]].formal_charge = -2
             #  1
             #  heavy atoms linked to NG2P1, NG3P3, NG2R52, NG3P2, NG3P0, NG2R61, NG3P1
             if atom.atomType.lower() == "NG2P1".lower() or atom.atomType.lower() == "NG3P3".lower() or atom.atomType.lower() == "NG2R52".lower() or atom.atomType.lower() == "NG3P2".lower() or atom.atomType.lower() == "NG3P0".lower() or atom.atomType.lower() == "NG2R61".lower() or atom.atomType.lower() == "NG3P1".lower():
                 while j < 5:
                     if atom.linkage[j] != -1:
-                        if mol.atoms.elementAt(atom.linkage[j]).element.charAt(0) == 'C':
-                            mol.atoms.elementAt(atom.linkage[j]).formal_charge = 1
+                        if mol.atoms[atom.linkage[j]].element[0] == 'C':
+                            mol.atoms[atom.linkage[j]].formal_charge = 1
                     j += 1
             i += 1
 
@@ -351,31 +355,31 @@ class ChemicalToolKits(object):
         #  The charge increment for a bond between two identical atom types is zero by definition.
         i = 0
         while i < len(mol.bonds):
-            if mol.atoms.elementAt(mol.bonds.elementAt(i).i).atomType.lower() == mol.atoms.elementAt(mol.bonds.elementAt(i.lower().j).atomType):
+            if mol.atoms[mol.bonds[i].i].atomType.lower() == mol.atoms[mol.bonds[i.lower().j].atomType]:
                 mol.bonds.removeElementAt(i)
                 i -= 1
-            elif mol.atoms.elementAt(mol.bonds.elementAt(i).i).atomType.lower() == "CG2D1O".lower() and mol.atoms.elementAt(mol.bonds.elementAt(i).j).atomType.lower() == "CG2D2O".lower():
+            elif mol.atoms[mol.bonds[i].i].atomType.lower() == "CG2D1O".lower() and mol.atoms[mol.bonds[i].j].atomType.lower() == "CG2D2O".lower():
                 mol.bonds.removeElementAt(i)
                 i -= 1
-            elif mol.atoms.elementAt(mol.bonds.elementAt(i).i).atomType.lower() == "CG2D2O".lower() and mol.atoms.elementAt(mol.bonds.elementAt(i).j).atomType.lower() == "CG2D1O".lower():
+            elif mol.atoms[mol.bonds[i].i].atomType.lower() == "CG2D2O".lower() and mol.atoms[mol.bonds[i].j].atomType.lower() == "CG2D1O".lower():
                 mol.bonds.removeElementAt(i)
                 i -= 1
-            elif mol.atoms.elementAt(mol.bonds.elementAt(i).i).atomType.lower() == "CG2DC1".lower() and mol.atoms.elementAt(mol.bonds.elementAt(i).j).atomType.lower() == "CG2DC2".lower():
+            elif mol.atoms[mol.bonds[i].i].atomType.lower() == "CG2DC1".lower() and mol.atoms[mol.bonds[i].j].atomType.lower() == "CG2DC2".lower():
                 mol.bonds.removeElementAt(i)
                 i -= 1
-            elif mol.atoms.elementAt(mol.bonds.elementAt(i).i).atomType.lower() == "CG2DC2".lower() and mol.atoms.elementAt(mol.bonds.elementAt(i).j).atomType.lower() == "CG2DC1".lower():
+            elif mol.atoms[mol.bonds[i].i].atomType.lower() == "CG2DC2".lower() and mol.atoms[mol.bonds[i].j].atomType.lower() == "CG2DC1".lower():
                 mol.bonds.removeElementAt(i)
                 i -= 1
-            elif mol.atoms.elementAt(mol.bonds.elementAt(i).i).atomType.lower() == "CG25C1".lower() and mol.atoms.elementAt(mol.bonds.elementAt(i).j).atomType.lower() == "CG25C2".lower():
+            elif mol.atoms[mol.bonds[i].i].atomType.lower() == "CG25C1".lower() and mol.atoms[mol.bonds[i].j].atomType.lower() == "CG25C2".lower():
                 mol.bonds.removeElementAt(i)
                 i -= 1
-            elif mol.atoms.elementAt(mol.bonds.elementAt(i).i).atomType.lower() == "CG25C2".lower() and mol.atoms.elementAt(mol.bonds.elementAt(i).j).atomType.lower() == "CG25C1".lower():
+            elif mol.atoms[mol.bonds[i].i].atomType.lower() == "CG25C2".lower() and mol.atoms[mol.bonds[i].j].atomType.lower() == "CG25C1".lower():
                 mol.bonds.removeElementAt(i)
                 i -= 1
-            elif mol.atoms.elementAt(mol.bonds.elementAt(i).i).atomType.lower() == "CG251O".lower() and mol.atoms.elementAt(mol.bonds.elementAt(i).j).atomType.lower() == "CG252O".lower():
+            elif mol.atoms[mol.bonds[i].i].atomType.lower() == "CG251O".lower() and mol.atoms[mol.bonds[i].j].atomType.lower() == "CG252O".lower():
                 mol.bonds.removeElementAt(i)
                 i -= 1
-            elif mol.atoms.elementAt(mol.bonds.elementAt(i).i).atomType.lower() == "CG252O".lower() and mol.atoms.elementAt(mol.bonds.elementAt(i).j).atomType.lower() == "CG251O".lower():
+            elif mol.atoms[mol.bonds[i].i].atomType.lower() == "CG252O".lower() and mol.atoms[mol.bonds[i].j].atomType.lower() == "CG251O".lower():
                 mol.bonds.removeElementAt(i)
                 i -= 1
             i += 1
@@ -385,10 +389,10 @@ class ChemicalToolKits(object):
         atom_combi = ""
         i = 0
         while i < len(mol.bonds):
-            atom_combi = mol.atoms.elementAt(mol.bonds.elementAt(i).i).atomType + " " + mol.atoms.elementAt(mol.bonds.elementAt(i).j).atomType
+            atom_combi = mol.atoms[mol.bonds[i].i].atomType + " " + mol.atoms[mol.bonds[i].j].atomType
             value = hChargeIncrement.get(atom_combi)
             if value != None:
-                mol.bonds.elementAt(i).increment = Double.parseDouble(value)
+                mol.bonds[i].increment = Double.parseDouble(value)
             else:
                 print "No available bond charge increment: " + atom_combi
             i += 1
@@ -396,12 +400,12 @@ class ChemicalToolKits(object):
     def assignAtomChargesUsingBondIncrement(self, mol):
         a = 0
         while a < len(mol.atoms):
-            mol.atoms.elementAt(a).charge_calc = mol.atoms.elementAt(a).formal_charge
+            mol.atoms[a].charge_calc = mol.atoms[a].formal_charge
             a += 1
         b = 0
         while b < len(mol.bonds):
-            mol.atoms.elementAt(mol.bonds.elementAt(b).i).charge_calc -= mol.bonds.elementAt(b).increment
-            mol.atoms.elementAt(mol.bonds.elementAt(b).j).charge_calc += mol.bonds.elementAt(b).increment
+            mol.atoms[mol.bonds[b].i].charge_calc -= mol.bonds[b].increment
+            mol.atoms[mol.bonds[b].j].charge_calc += mol.bonds[b].increment
             b += 1
 
     #  =============================================================================
@@ -429,13 +433,13 @@ class ChemicalToolKits(object):
         index = int()
         i = 0
         while i < len(vRings):
-            array = vRings.elementAt(i).path.split(" ")
+            array = vRings[i].path.split(" ")
             while len(array):
                 index = Integer.parseInt(array[j])
-                mol.atoms.elementAt(index).isRingAtom = True
+                mol.atoms[index].isRingAtom = True
                 while k < 3:
-                    if mol.atoms.elementAt(index).ringIndex[k] == -1:
-                        mol.atoms.elementAt(index).ringIndex[k] = i
+                    if mol.atoms[index].ringIndex[k] == -1:
+                        mol.atoms[index].ringIndex[k] = i
                         len(array)
                         break
                     k += 1
@@ -461,16 +465,16 @@ class ChemicalToolKits(object):
             is_neutral_pyridine = False
             is_protonated_pyridine = False
             is_protonated_pyrimidine = False
-            array = vRings.elementAt(i).path.split(" ")
-            # print  vRings.elementAt(i).path ;
+            array = vRings[i].path.split(" ")
+            # print  vRings[i).path ;
             #  *** check planarity ***
             if len(array):
                 if isPlanarRing(mol, array):
                     aRingAromacity[i] = True
                     while len(array):
                         index = Integer.parseInt(array[j])
-                        mol.atoms.elementAt(index).isAromatic = True
-                        if mol.atoms.elementAt(index).isCarbonyl:
+                        mol.atoms[index].isAromatic = True
+                        if mol.atoms[index].isCarbonyl:
                             aRingHasCabonyl[i] = True
                         j += 1
             if isPyrrole(mol, array):
@@ -487,12 +491,12 @@ class ChemicalToolKits(object):
                 is_furanose = True
             while len(array):
                 index = Integer.parseInt(array[j])
-                mol.atoms.elementAt(index).isPyrrole = is_pyrrole
-                mol.atoms.elementAt(index).isNeutralPyridine = is_neutral_pyridine
-                mol.atoms.elementAt(index).isProtonatedPyridine = is_protonated_pyridine
-                mol.atoms.elementAt(index).isProtonatedPyrimidine = is_protonated_pyrimidine
-                mol.atoms.elementAt(index).isFuran = is_furan
-                mol.atoms.elementAt(index).isFuranose = is_furanose
+                mol.atoms[index].isPyrrole = is_pyrrole
+                mol.atoms[index].isNeutralPyridine = is_neutral_pyridine
+                mol.atoms[index].isProtonatedPyridine = is_protonated_pyridine
+                mol.atoms[index].isProtonatedPyrimidine = is_protonated_pyrimidine
+                mol.atoms[index].isFuran = is_furan
+                mol.atoms[index].isFuranose = is_furanose
                 j += 1
             i += 1
 
@@ -500,7 +504,7 @@ class ChemicalToolKits(object):
         atom = Atom()
         i = 0
         while len(array):
-            atom = mol.atoms.elementAt(Integer.parseInt(array[i]))
+            atom = mol.atoms[Integer.parseInt(array[i])]
             if atom.num_linkages == 4:
                 return False
             i += 1
@@ -512,7 +516,7 @@ class ChemicalToolKits(object):
         num_nitrogen_atoms = 0
         if len(array):
             while i < 5:
-                atom = mol.atoms.elementAt(Integer.parseInt(array[i]))
+                atom = mol.atoms[Integer.parseInt(array[i])]
                 if not atom.isAromatic:
                     return False
                 if atom.element.lower() == "C".lower():
@@ -531,7 +535,7 @@ class ChemicalToolKits(object):
         num_protonated_N = 0
         if len(array):
             while i < 6:
-                atom = mol.atoms.elementAt(Integer.parseInt(array[i]))
+                atom = mol.atoms[Integer.parseInt(array[i])]
                 if not atom.isAromatic:
                     return False
                 if atom.element.lower() == "C".lower():
@@ -552,7 +556,7 @@ class ChemicalToolKits(object):
         num_protonated_N = 0
         if len(array):
             while i < 6:
-                atom = mol.atoms.elementAt(Integer.parseInt(array[i]))
+                atom = mol.atoms[Integer.parseInt(array[i])]
                 if not atom.isAromatic:
                     return False
                 if atom.element.lower() == "C".lower():
@@ -573,7 +577,7 @@ class ChemicalToolKits(object):
         num_protonated_N = 0
         if len(array):
             while i < 6:
-                atom = mol.atoms.elementAt(Integer.parseInt(array[i]))
+                atom = mol.atoms[Integer.parseInt(array[i])]
                 if not atom.isAromatic:
                     return False
                 if atom.element.lower() == "C".lower():
@@ -595,7 +599,7 @@ class ChemicalToolKits(object):
         isAromatic = True
         if len(array):
             while i < 5:
-                atom = mol.atoms.elementAt(Integer.parseInt(array[i]))
+                atom = mol.atoms[Integer.parseInt(array[i])]
                 if not atom.isAromatic:
                     isAromatic = False
                 if atom.element.lower() == "C".lower():
@@ -623,7 +627,7 @@ class ChemicalToolKits(object):
         if len(array):
             while i < 5:
                 index = Integer.parseInt(array[i])
-                atom = mol.atoms.elementAt(index)
+                atom = mol.atoms[index]
                 if not atom.isAromatic:
                     isAromatic = False
                 if atom.element.lower() == "C".lower():
@@ -647,11 +651,11 @@ class ChemicalToolKits(object):
         while i < len(mol.atoms):
             num_hydrogen_atoms = 0
             while j < 5:
-                if mol.atoms.elementAt(i).linkage[j] != -1:
-                    if mol.atoms.elementAt(mol.atoms.elementAt(i).linkage[j]).element.lower() == "H".lower():
+                if mol.atoms[i].linkage[j] != -1:
+                    if mol.atoms[mol.atoms[i].linkage[j]].element.lower() == "H".lower():
                         num_hydrogen_atoms += 1
                 j += 1
-            mol.atoms.elementAt(i).numHydrogenAtoms = num_hydrogen_atoms
+            mol.atoms[i].numHydrogenAtoms = num_hydrogen_atoms
             i += 1
 
     def setNumCarbonAtoms(self, mol):
@@ -660,11 +664,11 @@ class ChemicalToolKits(object):
         while i < len(mol.atoms):
             num_carbon_atoms = 0
             while j < 5:
-                if mol.atoms.elementAt(i).linkage[j] != -1:
-                    if mol.atoms.elementAt(mol.atoms.elementAt(i).linkage[j]).element.lower() == "C".lower():
+                if mol.atoms[i].linkage[j] != -1:
+                    if mol.atoms[mol.atoms[i].linkage[j]].element.lower() == "C".lower():
                         num_carbon_atoms += 1
                 j += 1
-            mol.atoms.elementAt(i).numCarbonAtoms = num_carbon_atoms
+            mol.atoms[i].numCarbonAtoms = num_carbon_atoms
             i += 1
 
     def setNumNitrogenAtoms(self, mol):
@@ -673,11 +677,11 @@ class ChemicalToolKits(object):
         while i < len(mol.atoms):
             num_nigrogen_atoms = 0
             while j < 5:
-                if mol.atoms.elementAt(i).linkage[j] != -1:
-                    if mol.atoms.elementAt(mol.atoms.elementAt(i).linkage[j]).element.lower() == "N".lower():
+                if mol.atoms[i].linkage[j] != -1:
+                    if mol.atoms[mol.atoms[i].linkage[j]].element.lower() == "N".lower():
                         num_nigrogen_atoms += 1
                 j += 1
-            mol.atoms.elementAt(i).numNitrogenAtoms = num_nigrogen_atoms
+            mol.atoms[i].numNitrogenAtoms = num_nigrogen_atoms
             i += 1
 
     def setNumOxygenAtoms(self, mol):
@@ -686,11 +690,11 @@ class ChemicalToolKits(object):
         while i < len(mol.atoms):
             num_oxygen_atoms = 0
             while j < 5:
-                if mol.atoms.elementAt(i).linkage[j] != -1:
-                    if mol.atoms.elementAt(mol.atoms.elementAt(i).linkage[j]).element.lower() == "O".lower():
+                if mol.atoms[i].linkage[j] != -1:
+                    if mol.atoms[mol.atoms[i].linkage[j]].element.lower() == "O".lower():
                         num_oxygen_atoms += 1
                 j += 1
-            mol.atoms.elementAt(i).numOxygenAtoms = num_oxygen_atoms
+            mol.atoms[i].numOxygenAtoms = num_oxygen_atoms
             i += 1
 
     def setNumSulfurAtoms(self, mol):
@@ -699,22 +703,22 @@ class ChemicalToolKits(object):
         while i < len(mol.atoms):
             num_sulfur_atoms = 0
             while j < 5:
-                if mol.atoms.elementAt(i).linkage[j] != -1:
-                    if mol.atoms.elementAt(mol.atoms.elementAt(i).linkage[j]).element.lower() == "S".lower():
+                if mol.atoms[i].linkage[j] != -1:
+                    if mol.atoms[mol.atoms[i].linkage[j]].element.lower() == "S".lower():
                         num_sulfur_atoms += 1
                 j += 1
-            mol.atoms.elementAt(i).numSulfurAtoms = num_sulfur_atoms
+            mol.atoms[i].numSulfurAtoms = num_sulfur_atoms
             i += 1
 
     def setMethylAtoms(self, mol):
         i = 0
         while i < len(mol.atoms):
-            if mol.atoms.elementAt(i).element.lower() == "C".lower() and mol.atoms.elementAt(i).numHydrogenAtoms == 3:
-                mol.atoms.elementAt(i).isMethyl = True
+            if mol.atoms[i].element.lower() == "C".lower() and mol.atoms[i].numHydrogenAtoms == 3:
+                mol.atoms[i].isMethyl = True
             i += 1
 
     def isAtomInFiveMemberedRing(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < 3:
             if atom.numRingAtoms[i] == 5:
@@ -723,7 +727,7 @@ class ChemicalToolKits(object):
         return False
 
     def isAtomInSixMemberedRing(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < 3:
             if atom.numRingAtoms[i] == 6:
@@ -749,39 +753,39 @@ class ChemicalToolKits(object):
         i = 0
         while i < len(mol.bonds):
             while j < 5:
-                if mol.atoms.elementAt(mol.bonds.elementAt(i).i).linkage[j] == mol.bonds.elementAt(i).j:
-                    if mol.bonds.elementAt(i).bondType.charAt(0) == '1':
-                        mol.atoms.elementAt(mol.bonds.elementAt(i).i).bondOrder[j] = 1
-                    elif mol.bonds.elementAt(i).bondType.charAt(0) == '2':
-                        mol.atoms.elementAt(mol.bonds.elementAt(i).i).bondOrder[j] = 2
-                    elif mol.bonds.elementAt(i).bondType.charAt(0) == '3':
-                        mol.atoms.elementAt(mol.bonds.elementAt(i).i).bondOrder[j] = 3
-                    elif mol.bonds.elementAt(i).bondType.lower() == "am".lower():
-                        mol.atoms.elementAt(mol.bonds.elementAt(i).i).bondOrder[j] = 1
+                if mol.atoms[mol.bonds[i].i].linkage[j] == mol.bonds[i].j:
+                    if mol.bonds[i].bondType[0] == '1':
+                        mol.atoms[mol.bonds[i].i].bondOrder[j] = 1
+                    elif mol.bonds[i].bondType[0] == '2':
+                        mol.atoms[mol.bonds[i].i].bondOrder[j] = 2
+                    elif mol.bonds[i].bondType[0] == '3':
+                        mol.atoms[mol.bonds[i].i].bondOrder[j] = 3
+                    elif mol.bonds[i].bondType.lower() == "am".lower():
+                        mol.atoms[mol.bonds[i].i].bondOrder[j] = 1
                     break
                 j += 1
             while j < 5:
-                if mol.atoms.elementAt(mol.bonds.elementAt(i).j).linkage[j] == mol.bonds.elementAt(i).i:
-                    if mol.bonds.elementAt(i).bondType.charAt(0) == '1':
-                        mol.atoms.elementAt(mol.bonds.elementAt(i).j).bondOrder[j] = 1
-                    elif mol.bonds.elementAt(i).bondType.charAt(0) == '2':
-                        mol.atoms.elementAt(mol.bonds.elementAt(i).j).bondOrder[j] = 2
-                    elif mol.bonds.elementAt(i).bondType.charAt(0) == '3':
-                        mol.atoms.elementAt(mol.bonds.elementAt(i).j).bondOrder[j] = 3
-                    elif mol.bonds.elementAt(i).bondType.lower() == "am".lower():
-                        mol.atoms.elementAt(mol.bonds.elementAt(i).j).bondOrder[j] = 1
+                if mol.atoms[mol.bonds[i].j].linkage[j] == mol.bonds[i].i:
+                    if mol.bonds[i].bondType[0] == '1':
+                        mol.atoms[mol.bonds[i].j].bondOrder[j] = 1
+                    elif mol.bonds[i].bondType[0] == '2':
+                        mol.atoms[mol.bonds[i].j].bondOrder[j] = 2
+                    elif mol.bonds[i].bondType[0] == '3':
+                        mol.atoms[mol.bonds[i].j].bondOrder[j] = 3
+                    elif mol.bonds[i].bondType.lower() == "am".lower():
+                        mol.atoms[mol.bonds[i].j].bondOrder[j] = 1
                     break
                 j += 1
             i += 1
         i = 0
         while i < len(mol.atoms):
-            atom = mol.atoms.elementAt(i)
+            atom = mol.atoms[i]
             if atom.isAromatic and atom.element.lower() == "C".lower() and hasDoubleBondedOxygen(mol, i) and atom.num_linkages == 3:
                 while j < 3:
-                    if not mol.atoms.elementAt(atom.linkage[j]).element.lower() == "O".lower():
+                    if not mol.atoms[atom.linkage[j]].element.lower() == "O".lower():
                         atom.bondOrder[j] = 1
                         while k < 5:
-                            atom_linked = mol.atoms.elementAt(atom.linkage[j])
+                            atom_linked = mol.atoms[atom.linkage[j]]
                             if atom_linked.linkage[k] == i:
                                 atom_linked.bondOrder[k] = 1
                                 break
@@ -790,13 +794,13 @@ class ChemicalToolKits(object):
             i += 1
         i = 0
         while i < len(mol.atoms):
-            atom = mol.atoms.elementAt(i)
+            atom = mol.atoms[i]
             if atom.isAromatic and atom.element.lower() == "C".lower() and atom.num_linkages == 3 and getNumUnassignedBondOrders(atom) == 1:
                 while j < 3:
                     if atom.bondOrder[j] == 0:
                         atom.bondOrder[j] = 2
                         while k < 5:
-                            atom_linked = mol.atoms.elementAt(atom.linkage[j])
+                            atom_linked = mol.atoms[atom.linkage[j]]
                             if atom_linked.linkage[k] == i:
                                 atom_linked.bondOrder[k] = 2
                                 break
@@ -806,14 +810,14 @@ class ChemicalToolKits(object):
             i += 1
         i = 0
         while i < len(mol.atoms):
-            atom = mol.atoms.elementAt(i)
+            atom = mol.atoms[i]
             if atom.isAromatic and atom.element.lower() == "C".lower() and atom.num_linkages == 3 and getNumUnassignedBondOrders(atom) == 2:
                 #  double bond for one bond
                 while j < 3:
                     if atom.bondOrder[j] == 0:
                         atom.bondOrder[j] = 2
                         while k < 5:
-                            atom_linked = mol.atoms.elementAt(atom.linkage[j])
+                            atom_linked = mol.atoms[atom.linkage[j]]
                             if atom_linked.linkage[k] == i:
                                 atom_linked.bondOrder[k] = 2
                                 break
@@ -825,7 +829,7 @@ class ChemicalToolKits(object):
                     if atom.bondOrder[j] == 0:
                         atom.bondOrder[j] = 1
                         while k < 5:
-                            atom_linked = mol.atoms.elementAt(atom.linkage[j])
+                            atom_linked = mol.atoms[atom.linkage[j]]
                             if atom_linked.linkage[k] == i:
                                 atom_linked.bondOrder[k] = 1
                                 break
@@ -850,12 +854,12 @@ class ChemicalToolKits(object):
         total_bond_order = 0
         i = 0
         while i < num_atoms:
-            atom = mol.atoms.elementAt(i)
+            atom = mol.atoms[i]
             total_bond_order = 0
             while j < 5:
                 total_bond_order += atom.bondOrder[j]
                 j += 1
-            mol.atoms.elementAt(i).totalBondOrder = total_bond_order
+            mol.atoms[i].totalBondOrder = total_bond_order
             i += 1
 
     def setAngleList(self, mol):
@@ -864,42 +868,42 @@ class ChemicalToolKits(object):
         i = 0
         while i < len(mol.bonds):
             while j < len(mol.bonds):
-                if mol.bonds.elementAt(i).i == mol.bonds.elementAt(j).j:
+                if mol.bonds[i].i == mol.bonds[j].j:
                     atmgrp = LinkedAtomGroup()
-                    atmgrp.i = mol.bonds.elementAt(j).i
-                    atmgrp.j = mol.bonds.elementAt(i).j
-                    atmgrp.linked_atoms = "" + mol.bonds.elementAt(j).i + "-" + mol.bonds.elementAt(i).i + "-" + mol.bonds.elementAt(i).j
+                    atmgrp.i = mol.bonds[j].i
+                    atmgrp.j = mol.bonds[i].j
+                    atmgrp.linked_atoms = "" + mol.bonds[j].i + "-" + mol.bonds[i].i + "-" + mol.bonds[i].j
                     atmgrp.linked_bonds = "" + j + "-" + i
-                    mol.angles.add(atmgrp)
-                elif mol.bonds.elementAt(i).j == mol.bonds.elementAt(j).i:
+                    mol.angles.append(atmgrp)
+                elif mol.bonds[i].j == mol.bonds[j].i:
                     atmgrp = LinkedAtomGroup()
-                    atmgrp.i = mol.bonds.elementAt(i).i
-                    atmgrp.j = mol.bonds.elementAt(j).j
-                    atmgrp.linked_atoms = "" + mol.bonds.elementAt(i).i + "-" + mol.bonds.elementAt(i).j + "-" + mol.bonds.elementAt(j).j
+                    atmgrp.i = mol.bonds[i].i
+                    atmgrp.j = mol.bonds[j].j
+                    atmgrp.linked_atoms = "" + mol.bonds[i].i + "-" + mol.bonds[i].j + "-" + mol.bonds[j].j
                     atmgrp.linked_bonds = "" + i + "-" + j
-                    mol.angles.add(atmgrp)
-                elif mol.bonds.elementAt(i).i == mol.bonds.elementAt(j).i:
+                    mol.angles.append(atmgrp)
+                elif mol.bonds[i].i == mol.bonds[j].i:
                     atmgrp = LinkedAtomGroup()
-                    atmgrp.i = mol.bonds.elementAt(j).j
-                    atmgrp.j = mol.bonds.elementAt(i).j
-                    atmgrp.linked_atoms = "" + mol.bonds.elementAt(j).j + "-" + mol.bonds.elementAt(i).i + "-" + mol.bonds.elementAt(i).j
+                    atmgrp.i = mol.bonds[j].j
+                    atmgrp.j = mol.bonds[i].j
+                    atmgrp.linked_atoms = "" + mol.bonds[j].j + "-" + mol.bonds[i].i + "-" + mol.bonds[i].j
                     atmgrp.linked_bonds = "" + j + "-" + i
-                    mol.angles.add(atmgrp)
-                elif mol.bonds.elementAt(i).j == mol.bonds.elementAt(j).j:
+                    mol.angles.append(atmgrp)
+                elif mol.bonds[i].j == mol.bonds[j].j:
                     atmgrp = LinkedAtomGroup()
-                    atmgrp.i = mol.bonds.elementAt(i).i
-                    atmgrp.j = mol.bonds.elementAt(j).i
-                    atmgrp.linked_atoms = "" + mol.bonds.elementAt(i).i + "-" + mol.bonds.elementAt(i).j + "-" + mol.bonds.elementAt(j).i
+                    atmgrp.i = mol.bonds[i].i
+                    atmgrp.j = mol.bonds[j].i
+                    atmgrp.linked_atoms = "" + mol.bonds[i].i + "-" + mol.bonds[i].j + "-" + mol.bonds[j].i
                     atmgrp.linked_bonds = "" + i + "-" + j
-                    mol.angles.add(atmgrp)
+                    mol.angles.append(atmgrp)
                 j += 1
             i += 1
         #
         #       print  len(mol.angles) ;
         #       for( int i = 0 ; i < len(mol.angles) ; i++ ){
         #           for( int j = i+1 ; j < len(mol.angles) ; j++ ){
-        #               array = mol.angles.elementAt(j).linked_atoms.split( "-" );
-        #               if( mol.angles.elementAt(i).linked_atoms.lower() ==  mol.angles.elementAt(j.lower().linked_atoms ) ){
+        #               array = mol.angles[j).linked_atoms.split( "-" );
+        #               if( mol.angles[i).linked_atoms.lower() ==  mol.angles[j.lower().linked_atoms ) ){
         #                   mol.angles.removeElementAt(j);
         #                   j--;
         #               }
@@ -913,44 +917,44 @@ class ChemicalToolKits(object):
         array = []
         i = 0
         while i < len(mol.angles):
-            array = mol.angles.elementAt(i).linked_bonds.split("-")
+            array = mol.angles[i].linked_bonds.split("-")
             while j < len(mol.bonds):
                 if j != Integer.parseInt(array[0]) and j != Integer.parseInt(array[1]):
-                    if mol.angles.elementAt(i).i == mol.bonds.elementAt(j).j:
+                    if mol.angles[i].i == mol.bonds[j].j:
                         atmgrp = LinkedAtomGroup()
-                        atmgrp.i = mol.bonds.elementAt(j).i
-                        atmgrp.j = mol.angles.elementAt(i).j
-                        atmgrp.linked_atoms = mol.bonds.elementAt(j).i + "-" + mol.angles.elementAt(i).linked_atoms
-                        atmgrp.linked_bonds = j + "-" + mol.angles.elementAt(i).linked_bonds
-                        mol.dihedrals.add(atmgrp)
-                    elif mol.angles.elementAt(i).j == mol.bonds.elementAt(j).i:
+                        atmgrp.i = mol.bonds[j].i
+                        atmgrp.j = mol.angles[i].j
+                        atmgrp.linked_atoms = mol.bonds[j].i + "-" + mol.angles[i].linked_atoms
+                        atmgrp.linked_bonds = j + "-" + mol.angles[i].linked_bonds
+                        mol.dihedrals.append(atmgrp)
+                    elif mol.angles[i].j == mol.bonds[j].i:
                         atmgrp = LinkedAtomGroup()
-                        atmgrp.i = mol.angles.elementAt(i).i
-                        atmgrp.j = mol.bonds.elementAt(j).j
-                        atmgrp.linked_atoms = mol.angles.elementAt(i).linked_atoms + "-" + mol.bonds.elementAt(j).j
-                        atmgrp.linked_bonds = mol.angles.elementAt(i).linked_bonds + "-" + j
-                        mol.dihedrals.add(atmgrp)
-                    elif mol.angles.elementAt(i).i == mol.bonds.elementAt(j).i:
+                        atmgrp.i = mol.angles[i].i
+                        atmgrp.j = mol.bonds[j].j
+                        atmgrp.linked_atoms = mol.angles[i].linked_atoms + "-" + mol.bonds[j].j
+                        atmgrp.linked_bonds = mol.angles[i].linked_bonds + "-" + j
+                        mol.dihedrals.append(atmgrp)
+                    elif mol.angles[i].i == mol.bonds[j].i:
                         atmgrp = LinkedAtomGroup()
-                        atmgrp.i = mol.bonds.elementAt(j).j
-                        atmgrp.j = mol.angles.elementAt(i).j
-                        atmgrp.linked_atoms = mol.bonds.elementAt(j).j + "-" + mol.angles.elementAt(i).linked_atoms
-                        atmgrp.linked_bonds = j + "-" + mol.angles.elementAt(i).linked_bonds
-                        mol.dihedrals.add(atmgrp)
-                    elif mol.angles.elementAt(i).j == mol.bonds.elementAt(j).j:
+                        atmgrp.i = mol.bonds[j].j
+                        atmgrp.j = mol.angles[i].j
+                        atmgrp.linked_atoms = mol.bonds[j].j + "-" + mol.angles[i].linked_atoms
+                        atmgrp.linked_bonds = j + "-" + mol.angles[i].linked_bonds
+                        mol.dihedrals.append(atmgrp)
+                    elif mol.angles[i].j == mol.bonds[j].j:
                         atmgrp = LinkedAtomGroup()
-                        atmgrp.i = mol.angles.elementAt(i).i
-                        atmgrp.j = mol.bonds.elementAt(j).i
-                        atmgrp.linked_atoms = mol.angles.elementAt(i).linked_atoms + "-" + mol.bonds.elementAt(j).i
-                        atmgrp.linked_bonds = mol.angles.elementAt(i).linked_bonds + "-" + j
-                        mol.dihedrals.add(atmgrp)
+                        atmgrp.i = mol.angles[i].i
+                        atmgrp.j = mol.bonds[j].i
+                        atmgrp.linked_atoms = mol.angles[i].linked_atoms + "-" + mol.bonds[j].i
+                        atmgrp.linked_bonds = mol.angles[i].linked_bonds + "-" + j
+                        mol.dihedrals.append(atmgrp)
                 j += 1
             i += 1
         # print  len(vDihedral) ;
         i = 0
         while i < len(mol.dihedrals):
             while j < len(mol.dihedrals):
-                if mol.dihedrals.elementAt(i).linked_atoms.lower() == mol.dihedrals.elementAt(j.lower().linked_atoms):
+                if mol.dihedrals[i].linked_atoms.lower() == mol.dihedrals[j.lower().linked_atoms]:
                     mol.dihedrals.removeElementAt(j)
                     j -= 1
                 j += 1
@@ -965,7 +969,7 @@ class ChemicalToolKits(object):
         i = 0
         while i < num_atoms:
             add_to_list = False
-            atom = mol.atoms.elementAt(i)
+            atom = mol.atoms[i]
             atom_type = atom.atomType
             if atom.element.lower() == "C".lower() and atom.num_linkages == 3:
                 if not atom.isRingAtom and getNumberOfLinkedRingAtoms(mol, i) <= 1:
@@ -1040,26 +1044,26 @@ class ChemicalToolKits(object):
                 while j < 3:
                     atmgrp.linked_atoms += "-" + atom.linkage[j]
                     j += 1
-                mol.impropers.add(atmgrp)
+                mol.impropers.append(atmgrp)
             i += 1
 
 
     def getNumberOfLinkedRingAtoms(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         num_ring_atoms = 0
         i = 0
         while i < atom.num_linkages:
-            if mol.atoms.elementAt(atom.linkage[i]).isRingAtom:
+            if mol.atoms[atom.linkage[i]].isRingAtom:
                 num_ring_atoms += 1
             i += 1
         return num_ring_atoms
 
     def getFirstExocylicAtom(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < atom.num_linkages:
-            if not mol.atoms.elementAt(atom.linkage[i]).isRingAtom:
-                return mol.atoms.elementAt(atom.linkage[i]).element
+            if not mol.atoms[atom.linkage[i]].isRingAtom:
+                return mol.atoms[atom.linkage[i]].element
             i += 1
         return "X"
 
@@ -1262,28 +1266,28 @@ class ChemicalToolKits(object):
 
 
     def hasDoubleBondedCarbon(self, mol, atm_index):
-            atom = mol.atoms.elementAt(atm_index)
+            atom = mol.atoms[atm_index]
             i = 0
             while i < atom.num_linkages:
-                if atom.bondOrder[i] == 2 and mol.atoms.elementAt(atom.linkage[i]).element.lower() == "C".lower():
+                if atom.bondOrder[i] == 2 and mol.atoms[atom.linkage[i]].element.lower() == "C".lower():
                     return True
                 i += 1
             return False
 
     def hasDoubleBondedOxygen(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < atom.num_linkages:
-            if atom.bondOrder[i] == 2 and mol.atoms.elementAt(atom.linkage[i]).element.lower() == "O".lower():
+            if atom.bondOrder[i] == 2 and mol.atoms[atom.linkage[i]].element.lower() == "O".lower():
                 return True
             i += 1
         return False
 
     def hasDoubleBondedSulfur(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < atom.num_linkages:
-            if atom.bondOrder[i] == 2 and mol.atoms.elementAt(atom.linkage[i]).element.lower() == "S".lower():
+            if atom.bondOrder[i] == 2 and mol.atoms[atom.linkage[i]].element.lower() == "S".lower():
                 return True
             i += 1
         return False
@@ -1296,8 +1300,8 @@ class ChemicalToolKits(object):
         b = 0
         while b < len(mol.bonds):
             edge = Edge()
-            i = mol.bonds.elementAt(b).i
-            j = mol.bonds.elementAt(b).j
+            i = mol.bonds[b].i
+            j = mol.bonds[b].j
             if i < j:
                 edge.i = i
                 edge.j = j
@@ -1305,7 +1309,7 @@ class ChemicalToolKits(object):
                 edge.i = j
                 edge.j = i
             edge.path = edge.i + " " + edge.j
-            vEdges.add(edge)
+            vEdges.append(edge)
             b += 1
         return vEdges
 
@@ -1359,7 +1363,7 @@ class ChemicalToolKits(object):
         num_atoms = len(vMol)
         i = 0
         while i < num_atoms:
-            if vMol.elementAt(i).isAvailable:
+            if vMol[i].isAvailable:
                 num += 1
             i += 1
         return num
@@ -1370,9 +1374,9 @@ class ChemicalToolKits(object):
         min_num_linkages = 10
         i = 0
         while i < num_atoms:
-            if vMol.elementAt(i).isAvailable:
-                if vMol.elementAt(i).num_linkages < min_num_linkages:
-                    min_num_linkages = vMol.elementAt(i).num_linkages
+            if vMol[i].isAvailable:
+                if vMol[i].num_linkages < min_num_linkages:
+                    min_num_linkages = vMol[i].num_linkages
                     index = i
             i += 1
         return index
@@ -1382,8 +1386,8 @@ class ChemicalToolKits(object):
         index = -1
         i = 0
         while i < num_atoms:
-            if vMol.elementAt(i).isAvailable:
-                if vMol.elementAt(i).num_linkages == 1:
+            if vMol[i].isAvailable:
+                if vMol[i].num_linkages == 1:
                     return i
             i += 1
         return index
@@ -1391,11 +1395,11 @@ class ChemicalToolKits(object):
     def removeLinkage(self, vMol, index):
         i = 0
         while i < 5:
-            if vMol.elementAt(index).linkage[i] != -1:
+            if vMol[index].linkage[i] != -1:
                 while j < 5:
-                    if vMol.elementAt(vMol.elementAt(index).linkage[i]).linkage[j] == index:
-                        vMol.elementAt(vMol.elementAt(index).linkage[i]).linkage[j] = -1
-                        vMol.elementAt(vMol.elementAt(index).linkage[i]).num_linkages -= 1
+                    if vMol[vMol[index].linkage[i]].linkage[j] == index:
+                        vMol[vMol[index].linkage[i]].linkage[j] = -1
+                        vMol[vMol[index].linkage[i]].num_linkages -= 1
                         break
                     j += 1
             i += 1
@@ -1403,10 +1407,10 @@ class ChemicalToolKits(object):
     def replaceLinkage(self, vMol, vertex, index_i, index_j):
         i = 0
         while i < 5:
-            if vMol.elementAt(index_i).linkage[i] == vertex:
-                vMol.elementAt(index_i).linkage[i] = index_j
-            if vMol.elementAt(index_j).linkage[i] == vertex:
-                vMol.elementAt(index_j).linkage[i] = index_i
+            if vMol[index_i].linkage[i] == vertex:
+                vMol[index_i].linkage[i] = index_j
+            if vMol[index_j].linkage[i] == vertex:
+                vMol[index_j].linkage[i] = index_i
             i += 1
 
     def getNumLinkages(self, atom):
@@ -1471,7 +1475,7 @@ class ChemicalToolKits(object):
         array = []
         i = 0
         while i < len(vRings):
-            array = vRings.elementAt(i).path.split(" ")
+            array = vRings[i].path.split(" ")
             if len(array):
                 vRings.removeElementAt(i)
                 i -= 1
@@ -1481,7 +1485,7 @@ class ChemicalToolKits(object):
         array = []
         i = 0
         while i < len(vEdges):
-            array = vEdges.elementAt(i).path.split(" ")
+            array = vEdges[i].path.split(" ")
             if len(array):
                 vEdges.removeElementAt(i)
                 i -= 1
@@ -1501,7 +1505,7 @@ class ChemicalToolKits(object):
             while j < num_atoms:
                 index_j = Integer.parseInt(array[j])
                 if i != j:
-                    dist = getDistance(vMol.elementAt(index_i).R, vMol.elementAt(index_j).R)
+                    dist = getDistance(vMol[index_i].R, vMol[index_j].R)
                     if dist < 1.85:
                         num_linkages += 1
                 j += 1
@@ -1513,7 +1517,7 @@ class ChemicalToolKits(object):
     def removeNonRings(self, vMol, vRings):
         i = 0
         while i < len(vRings):
-            if not isRing(vMol, vRings.elementAt(i)):
+            if not isRing(vMol, vRings[i]):
                 vRings.removeElementAt(i)
                 i -= 1
             i += 1
@@ -1604,18 +1608,18 @@ class ChemicalToolKits(object):
         while mergeRings:
             mergeRings = False
             while i < len(vRings):
-                edge_i = vRings.elementAt(i)
+                edge_i = vRings[i]
                 path_1 = edge_i.path
                 array_1 = path_1.split(" ")
                 while j < len(vRings):
-                    edge_j = vRings.elementAt(j)
+                    edge_j = vRings[j]
                     path_2 = edge_j.path
                     array_2 = path_2.split(" ")
                     while len(array_1):
                         while len(array_2):
                             if Integer.parseInt(array_1[s1]) == Integer.parseInt(array_2[s2]):
                                 mergeRings = True
-                                vRings.elementAt(i).path = mergePaths(path_1, path_2)
+                                vRings[i].path = mergePaths(path_1, path_2)
                                 vRings.removeElementAt(j)
                                 break
                             s2 += 1
