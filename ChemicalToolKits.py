@@ -3,9 +3,14 @@
 import math
 import traceback
 import logging
-from SmallMolecule import SmallMolecule
+
+from Edge import Edge
 from Atom import Atom
 from Bond import Bond
+from Fragment import Fragment
+from SmallMolecule import SmallMolecule
+from LinkedAtomGroup import LinkedAtomGroup
+
 
 class ChemicalToolKits(object):
     def __init__(self):
@@ -356,31 +361,31 @@ class ChemicalToolKits(object):
         i = 0
         while i < len(mol.bonds):
             if mol.atoms[mol.bonds[i].i].atomType.lower() == mol.atoms[mol.bonds[i.lower().j].atomType]:
-                mol.bonds.removeElementAt(i)
+                del mol.bonds[i]
                 i -= 1
             elif mol.atoms[mol.bonds[i].i].atomType.lower() == "CG2D1O".lower() and mol.atoms[mol.bonds[i].j].atomType.lower() == "CG2D2O".lower():
-                mol.bonds.removeElementAt(i)
+                del mol.bonds[i]
                 i -= 1
             elif mol.atoms[mol.bonds[i].i].atomType.lower() == "CG2D2O".lower() and mol.atoms[mol.bonds[i].j].atomType.lower() == "CG2D1O".lower():
-                mol.bonds.removeElementAt(i)
+                del mol.bonds[i]
                 i -= 1
             elif mol.atoms[mol.bonds[i].i].atomType.lower() == "CG2DC1".lower() and mol.atoms[mol.bonds[i].j].atomType.lower() == "CG2DC2".lower():
-                mol.bonds.removeElementAt(i)
+                del mol.bonds[i]
                 i -= 1
             elif mol.atoms[mol.bonds[i].i].atomType.lower() == "CG2DC2".lower() and mol.atoms[mol.bonds[i].j].atomType.lower() == "CG2DC1".lower():
-                mol.bonds.removeElementAt(i)
+                del mol.bonds[i]
                 i -= 1
             elif mol.atoms[mol.bonds[i].i].atomType.lower() == "CG25C1".lower() and mol.atoms[mol.bonds[i].j].atomType.lower() == "CG25C2".lower():
-                mol.bonds.removeElementAt(i)
+                del mol.bonds[i]
                 i -= 1
             elif mol.atoms[mol.bonds[i].i].atomType.lower() == "CG25C2".lower() and mol.atoms[mol.bonds[i].j].atomType.lower() == "CG25C1".lower():
-                mol.bonds.removeElementAt(i)
+                del mol.bonds[i]
                 i -= 1
             elif mol.atoms[mol.bonds[i].i].atomType.lower() == "CG251O".lower() and mol.atoms[mol.bonds[i].j].atomType.lower() == "CG252O".lower():
-                mol.bonds.removeElementAt(i)
+                del mol.bonds[i]
                 i -= 1
             elif mol.atoms[mol.bonds[i].i].atomType.lower() == "CG252O".lower() and mol.atoms[mol.bonds[i].j].atomType.lower() == "CG251O".lower():
-                mol.bonds.removeElementAt(i)
+                del mol.bonds[i]
                 i -= 1
             i += 1
 
@@ -416,12 +421,13 @@ class ChemicalToolKits(object):
         atom = Atom()
         edge = Edge()
         frag = Fragment()
-        vEdges = Vector()
-        vRings = Vector()
+        vEdges = []
+        vRings = []
         #  *** generate P-Graph ***
-        vEdges = getInitialEdgesUsingBonds(mol)
-        while getNumRemainingVertex(mol.atoms) != 0:
-            clearEdges(vEdges, 7)
+        vEdges = self.getInitialEdgesUsingBonds(mol)
+        while self.getNumRemainingVertex(mol.atoms) != 0:
+            vertex = self.chooseVertex( mol.atoms )
+            self.clearEdges(vEdges, 7)
             remove(vertex, mol.atoms, vEdges, vRings)
         removeNonRings(mol.atoms, vRings)
         removeRedundantRings(vRings)
@@ -435,7 +441,7 @@ class ChemicalToolKits(object):
         while i < len(vRings):
             array = vRings[i].path.split(" ")
             while len(array):
-                index = Integer.parseInt(array[j])
+                index = str(array[j])
                 mol.atoms[index].isRingAtom = True
                 while k < 3:
                     if mol.atoms[index].ringIndex[k] == -1:
@@ -472,7 +478,7 @@ class ChemicalToolKits(object):
                 if isPlanarRing(mol, array):
                     aRingAromacity[i] = True
                     while len(array):
-                        index = Integer.parseInt(array[j])
+                        index = str(array[j])
                         mol.atoms[index].isAromatic = True
                         if mol.atoms[index].isCarbonyl:
                             aRingHasCabonyl[i] = True
@@ -490,7 +496,7 @@ class ChemicalToolKits(object):
             if isFuranose(mol, array):
                 is_furanose = True
             while len(array):
-                index = Integer.parseInt(array[j])
+                index = str(array[j])
                 mol.atoms[index].isPyrrole = is_pyrrole
                 mol.atoms[index].isNeutralPyridine = is_neutral_pyridine
                 mol.atoms[index].isProtonatedPyridine = is_protonated_pyridine
@@ -504,7 +510,7 @@ class ChemicalToolKits(object):
         atom = Atom()
         i = 0
         while len(array):
-            atom = mol.atoms[Integer.parseInt(array[i])]
+            atom = mol.atoms[str(array[i])]
             if atom.num_linkages == 4:
                 return False
             i += 1
@@ -516,7 +522,7 @@ class ChemicalToolKits(object):
         num_nitrogen_atoms = 0
         if len(array):
             while i < 5:
-                atom = mol.atoms[Integer.parseInt(array[i])]
+                atom = mol.atoms[str(array[i])]
                 if not atom.isAromatic:
                     return False
                 if atom.element.lower() == "C".lower():
@@ -535,7 +541,7 @@ class ChemicalToolKits(object):
         num_protonated_N = 0
         if len(array):
             while i < 6:
-                atom = mol.atoms[Integer.parseInt(array[i])]
+                atom = mol.atoms[str(array[i])]
                 if not atom.isAromatic:
                     return False
                 if atom.element.lower() == "C".lower():
@@ -556,7 +562,7 @@ class ChemicalToolKits(object):
         num_protonated_N = 0
         if len(array):
             while i < 6:
-                atom = mol.atoms[Integer.parseInt(array[i])]
+                atom = mol.atoms[str(array[i])]
                 if not atom.isAromatic:
                     return False
                 if atom.element.lower() == "C".lower():
@@ -577,7 +583,7 @@ class ChemicalToolKits(object):
         num_protonated_N = 0
         if len(array):
             while i < 6:
-                atom = mol.atoms[Integer.parseInt(array[i])]
+                atom = mol.atoms[str(array[i])]
                 if not atom.isAromatic:
                     return False
                 if atom.element.lower() == "C".lower():
@@ -599,7 +605,7 @@ class ChemicalToolKits(object):
         isAromatic = True
         if len(array):
             while i < 5:
-                atom = mol.atoms[Integer.parseInt(array[i])]
+                atom = mol.atoms[str(array[i])]
                 if not atom.isAromatic:
                     isAromatic = False
                 if atom.element.lower() == "C".lower():
@@ -626,7 +632,7 @@ class ChemicalToolKits(object):
         isAromatic = True
         if len(array):
             while i < 5:
-                index = Integer.parseInt(array[i])
+                index = str(array[i])
                 atom = mol.atoms[index]
                 if not atom.isAromatic:
                     isAromatic = False
@@ -853,6 +859,7 @@ class ChemicalToolKits(object):
         num_atoms = len(mol.atoms)
         total_bond_order = 0
         i = 0
+        j = 0
         while i < num_atoms:
             atom = mol.atoms[i]
             total_bond_order = 0
@@ -867,36 +874,35 @@ class ChemicalToolKits(object):
         array = []
         i = 0
         while i < len(mol.bonds):
-            while j < len(mol.bonds):
+            for j in range(i + 1, len(mol.bonds)):
                 if mol.bonds[i].i == mol.bonds[j].j:
                     atmgrp = LinkedAtomGroup()
                     atmgrp.i = mol.bonds[j].i
                     atmgrp.j = mol.bonds[i].j
-                    atmgrp.linked_atoms = "" + mol.bonds[j].i + "-" + mol.bonds[i].i + "-" + mol.bonds[i].j
-                    atmgrp.linked_bonds = "" + j + "-" + i
+                    atmgrp.linked_atoms = "" + str(mol.bonds[j].i) + "-" + str(mol.bonds[i].i) + "-" + str(mol.bonds[i].j)
+                    atmgrp.linked_bonds = "" + str(j) + "-" + str(i)
                     mol.angles.append(atmgrp)
                 elif mol.bonds[i].j == mol.bonds[j].i:
                     atmgrp = LinkedAtomGroup()
                     atmgrp.i = mol.bonds[i].i
                     atmgrp.j = mol.bonds[j].j
-                    atmgrp.linked_atoms = "" + mol.bonds[i].i + "-" + mol.bonds[i].j + "-" + mol.bonds[j].j
-                    atmgrp.linked_bonds = "" + i + "-" + j
+                    atmgrp.linked_atoms = "" + str(mol.bonds[i].i) + "-" + str(mol.bonds[i].j) + "-" + str(mol.bonds[j].j)
+                    atmgrp.linked_bonds = "" + str(i) + "-" + str(j)
                     mol.angles.append(atmgrp)
                 elif mol.bonds[i].i == mol.bonds[j].i:
                     atmgrp = LinkedAtomGroup()
                     atmgrp.i = mol.bonds[j].j
                     atmgrp.j = mol.bonds[i].j
-                    atmgrp.linked_atoms = "" + mol.bonds[j].j + "-" + mol.bonds[i].i + "-" + mol.bonds[i].j
-                    atmgrp.linked_bonds = "" + j + "-" + i
+                    atmgrp.linked_atoms = "" + str(mol.bonds[j].j) + "-" + str(mol.bonds[i].i) + "-" + str(mol.bonds[i].j)
+                    atmgrp.linked_bonds = "" + str(j) + "-" + str(i)
                     mol.angles.append(atmgrp)
                 elif mol.bonds[i].j == mol.bonds[j].j:
                     atmgrp = LinkedAtomGroup()
                     atmgrp.i = mol.bonds[i].i
                     atmgrp.j = mol.bonds[j].i
-                    atmgrp.linked_atoms = "" + mol.bonds[i].i + "-" + mol.bonds[i].j + "-" + mol.bonds[j].i
-                    atmgrp.linked_bonds = "" + i + "-" + j
+                    atmgrp.linked_atoms = "" + str(mol.bonds[i].i) + "-" + str(mol.bonds[i].j) + "-" + str(mol.bonds[j].i)
+                    atmgrp.linked_bonds = "" + str(i) + "-" + str(j)
                     mol.angles.append(atmgrp)
-                j += 1
             i += 1
         #
         #       print  len(mol.angles) ;
@@ -918,35 +924,36 @@ class ChemicalToolKits(object):
         i = 0
         while i < len(mol.angles):
             array = mol.angles[i].linked_bonds.split("-")
+            j = 0
             while j < len(mol.bonds):
-                if j != Integer.parseInt(array[0]) and j != Integer.parseInt(array[1]):
+                if j != str(array[0]) and j != str(array[1]):
                     if mol.angles[i].i == mol.bonds[j].j:
                         atmgrp = LinkedAtomGroup()
                         atmgrp.i = mol.bonds[j].i
                         atmgrp.j = mol.angles[i].j
-                        atmgrp.linked_atoms = mol.bonds[j].i + "-" + mol.angles[i].linked_atoms
-                        atmgrp.linked_bonds = j + "-" + mol.angles[i].linked_bonds
+                        atmgrp.linked_atoms = str(mol.bonds[j].i) + "-" + str(mol.angles[i].linked_atoms)
+                        atmgrp.linked_bonds = str(j) + "-" + str(mol.angles[i].linked_bonds)
                         mol.dihedrals.append(atmgrp)
                     elif mol.angles[i].j == mol.bonds[j].i:
                         atmgrp = LinkedAtomGroup()
                         atmgrp.i = mol.angles[i].i
                         atmgrp.j = mol.bonds[j].j
-                        atmgrp.linked_atoms = mol.angles[i].linked_atoms + "-" + mol.bonds[j].j
-                        atmgrp.linked_bonds = mol.angles[i].linked_bonds + "-" + j
+                        atmgrp.linked_atoms = str(mol.angles[i].linked_atoms) + "-" + str(mol.bonds[j].j)
+                        atmgrp.linked_bonds = str(mol.angles[i].linked_bonds) + "-" + str(j)
                         mol.dihedrals.append(atmgrp)
                     elif mol.angles[i].i == mol.bonds[j].i:
                         atmgrp = LinkedAtomGroup()
                         atmgrp.i = mol.bonds[j].j
                         atmgrp.j = mol.angles[i].j
-                        atmgrp.linked_atoms = mol.bonds[j].j + "-" + mol.angles[i].linked_atoms
-                        atmgrp.linked_bonds = j + "-" + mol.angles[i].linked_bonds
+                        atmgrp.linked_atoms = str(mol.bonds[j].j) + "-" + str(mol.angles[i].linked_atoms)
+                        atmgrp.linked_bonds = str(j) + "-" + str(mol.angles[i].linked_bonds)
                         mol.dihedrals.append(atmgrp)
                     elif mol.angles[i].j == mol.bonds[j].j:
                         atmgrp = LinkedAtomGroup()
                         atmgrp.i = mol.angles[i].i
                         atmgrp.j = mol.bonds[j].i
-                        atmgrp.linked_atoms = mol.angles[i].linked_atoms + "-" + mol.bonds[j].i
-                        atmgrp.linked_bonds = mol.angles[i].linked_bonds + "-" + j
+                        atmgrp.linked_atoms = str(mol.angles[i].linked_atoms) + "-" + str(mol.bonds[j].i)
+                        atmgrp.linked_bonds = str(mol.angles[i].linked_bonds) + "-" + str(j)
                         mol.dihedrals.append(atmgrp)
                 j += 1
             i += 1
@@ -954,8 +961,8 @@ class ChemicalToolKits(object):
         i = 0
         while i < len(mol.dihedrals):
             while j < len(mol.dihedrals):
-                if mol.dihedrals[i].linked_atoms.lower() == mol.dihedrals[j.lower().linked_atoms]:
-                    mol.dihedrals.removeElementAt(j)
+                if mol.dihedrals[i].linked_atoms.lower() == mol.dihedrals[j].linked_atoms.lower():
+                    del mol.dihedrals[j]
                     j -= 1
                 j += 1
             i += 1
@@ -1293,7 +1300,7 @@ class ChemicalToolKits(object):
         return False
 
     def getInitialEdgesUsingBonds(self, mol):
-        vEdges = Vector()
+        vEdges = []
         edge = Edge()
         i = int()
         j = int()
@@ -1308,7 +1315,7 @@ class ChemicalToolKits(object):
             else:
                 edge.i = j
                 edge.j = i
-            edge.path = edge.i + " " + edge.j
+            edge.path = str(edge.i) + " " + str(edge.j)
             vEdges.append(edge)
             b += 1
         return vEdges
@@ -1433,10 +1440,10 @@ class ChemicalToolKits(object):
         isCommonVertex = False
         i = 0
         while len(array_i):
-            vertex_i = Integer.parseInt(array_i[i])
+            vertex_i = str(array_i[i])
             isCommonVertex = False
             while len(array_j):
-                vertex_j = Integer.parseInt(array_j[j])
+                vertex_j = str(array_j[j])
                 if vertex_i == vertex_j:
                     isCommonVertex = True
                     break
@@ -1455,10 +1462,10 @@ class ChemicalToolKits(object):
         isCommonVertex = False
         i = 0
         while len(array_i):
-            vertex_i = Integer.parseInt(array_i[i])
+            vertex_i = str(array_i[i])
             isCommonVertex = False
             while len(array_j):
-                vertex_j = Integer.parseInt(array_j[j])
+                vertex_j = str(array_j[j])
                 if vertex_i == vertex_j:
                     isCommonVertex = True
                     break
@@ -1477,7 +1484,7 @@ class ChemicalToolKits(object):
         while i < len(vRings):
             array = vRings[i].path.split(" ")
             if len(array):
-                vRings.removeElementAt(i)
+                del vRings[i]
                 i -= 1
             i += 1
 
@@ -1487,7 +1494,7 @@ class ChemicalToolKits(object):
         while i < len(vEdges):
             array = vEdges[i].path.split(" ")
             if len(array):
-                vEdges.removeElementAt(i)
+                del vEdges[i]
                 i -= 1
             i += 1
 
@@ -1501,9 +1508,9 @@ class ChemicalToolKits(object):
         i = 0
         while i < num_atoms:
             num_linkages = 0
-            index_i = Integer.parseInt(array[i])
+            index_i = str(array[i])
             while j < num_atoms:
-                index_j = Integer.parseInt(array[j])
+                index_j = str(array[j])
                 if i != j:
                     dist = getDistance(vMol[index_i].R, vMol[index_j].R)
                     if dist < 1.85:
@@ -1518,7 +1525,7 @@ class ChemicalToolKits(object):
         i = 0
         while i < len(vRings):
             if not isRing(vMol, vRings[i]):
-                vRings.removeElementAt(i)
+                del vRings[i]
                 i -= 1
             i += 1
 
@@ -1617,10 +1624,10 @@ class ChemicalToolKits(object):
                     array_2 = path_2.split(" ")
                     while len(array_1):
                         while len(array_2):
-                            if Integer.parseInt(array_1[s1]) == Integer.parseInt(array_2[s2]):
+                            if str(array_1[s1]) == str(array_2[s2]):
                                 mergeRings = True
                                 vRings[i].path = mergePaths(path_1, path_2)
-                                vRings.removeElementAt(j)
+                                del vRings[j]
                                 break
                             s2 += 1
                         if mergeRings:
