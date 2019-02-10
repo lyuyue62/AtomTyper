@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+from Edge import Edge
+from Atom import Atom
+from Bond import Bond
 
 class AtomTypingNitrogen(object):
     def __init__(self):
@@ -10,16 +13,16 @@ class AtomTypingNitrogen(object):
         iminCarbonIndex = -1
         i = 0
         while i < num_atoms:
-            atom = mol.atoms.elementAt(i)
+            atom = mol.atoms[i]
             if atom.element.lower() == "N".lower():
                 #  NG1T1: N for cyano group
-                if getIndexAtomType(mol, i, "CG1N1") != -1:
+                if self.getIndexAtomType(mol, i, "CG1N1") != -1:
                     atom.atomType = "NG1T1"
                 #  NG2D1: N for neutral imine/Schiff's base (C=N-R, acyclic amidine, gunaidine)
                 #  NG2P1: N for protonated imine/Schiff's base (C=N(+)H-R, acyclic amidinium, guanidinium)
-                iminCarbonIndex = getIndexOfImineCarbon(mol, i)
+                iminCarbonIndex = self.getIndexOfImineCarbon(mol, i)
                 if iminCarbonIndex != -1:
-                    if not mol.atoms.elementAt(iminCarbonIndex).isProtonatedImineGroup:
+                    if not mol.atoms[iminCarbonIndex].isProtonatedImineGroup:
                         atom.atomType = "NG2D1"
                     else:
                         atom.atomType = "NG2P1"
@@ -56,7 +59,7 @@ class AtomTypingNitrogen(object):
                                 if not atom.isAromatic and (atom.numHydrogenAtoms == 0 or atom.numHydrogenAtoms == 1) and not atom.isAmide:
                                     #  NG3C51: secondary sp3 amine in 5-membered ring
                                     atom.atomType = "NG3C51"
-                            elif iminCarbonIndex != -1 and mol.atoms.elementAt(iminCarbonIndex).isProtonatedImineGroup:
+                            elif iminCarbonIndex != -1 and mol.atoms[iminCarbonIndex].isProtonatedImineGroup:
                                 #  NG2R52: protonated schiff base, amidinium, guanidinium in 5-membered ring, HIS, 2HPP, kevo
                                 atom.atomType = "NG2R52"
                             elif atom.isAromatic and atom.num_linkages == 3 and not hasDoubleBond(mol, i):
@@ -96,7 +99,7 @@ class AtomTypingNitrogen(object):
                         #  NG3N1: N in hydrazine, HDZN
                         atom.atomType = "NG3N1"
                 #  NG2S3: external amine ring nitrogen (planar/aniline), phosphoramidate (PO3-NR2), sulfamate (SO3-NR2)
-                if isTypeNG2S3(mol, i):
+                if self.isTypeNG2S3(mol, i):
                     atom.atomType = "NG2S3"
                 #  NG2O1: NITB, nitrobenzene
                 if atom.num_linkages == 3 and atom.numOxygenAtoms == 2 and atom.numCarbonAtoms == 1:
@@ -116,44 +119,44 @@ class AtomTypingNitrogen(object):
             i += 1
 
     def getIndexAtomType(self, mol, atm_index, atomType):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < 5:
             if atom.linkage[i] == -1:
                 return -1
             else:
-                if mol.atoms.elementAt(atom.linkage[i]).atomType != None and mol.atoms.elementAt(atom.linkage[i]).atomType.lower() == atomType.lower():
+                if mol.atoms[atom.linkage[i]].atomType != None and mol.atoms[atom.linkage[i]].atomType.lower() == atomType.lower():
                     return atom.linkage[i]
             i += 1
         return -1
 
     def getIndexElement(self, mol, atm_index, element):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < 5:
             if atom.linkage[i] == -1:
                 return -1
             else:
-                if mol.atoms.elementAt(atom.linkage[i]).element.lower() == element.lower():
+                if mol.atoms[atom.linkage[i]].element.lower() == element.lower():
                     return atom.linkage[i]
             i += 1
         return -1
 
     def countSpecificElement(self, mol, atm_index, element):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         num_elements = 0
         i = 0
         while i < 5:
-            if atom.linkage[i] != -1 and mol.atoms.elementAt(atom.linkage[i]).element.lower() == element.lower():
+            if atom.linkage[i] != -1 and mol.atoms[atom.linkage[i]].element.lower() == element.lower():
                 num_elements += 1
             i += 1
         return num_elements
 
     def getIndexDoubleBondedCarbon(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < 4:
-            if atom.linkage[i] != -1 and atom.bondOrder[i] == 2 and mol.atoms.elementAt(atom.linkage[i]).element.lower() == "C".lower():
+            if atom.linkage[i] != -1 and atom.bondOrder[i] == 2 and mol.atoms[atom.linkage[i]].element.lower() == "C".lower():
                 return atom.linkage[i]
             i += 1
         return -1
@@ -163,9 +166,9 @@ class AtomTypingNitrogen(object):
         index_j = int()
         i = 0
         while i < 3:
-            index_i = mol.atoms.elementAt(atom_i).ringIndex[i]
+            index_i = mol.atoms[atom_i].ringIndex[i]
             while j < 3:
-                index_j = mol.atoms.elementAt(atom_j).ringIndex[j]
+                index_j = mol.atoms[atom_j].ringIndex[j]
                 if index_i != -1 and index_j != -1 and index_i != index_j:
                     return True
                 j += 1
@@ -177,9 +180,9 @@ class AtomTypingNitrogen(object):
         index_j = int()
         i = 0
         while i < 3:
-            index_i = mol.atoms.elementAt(atom_i).ringIndex[i]
+            index_i = mol.atoms[atom_i].ringIndex[i]
             while j < 3:
-                index_j = mol.atoms.elementAt(atom_j).ringIndex[j]
+                index_j = mol.atoms[atom_j].ringIndex[j]
                 if index_i != -1 and index_j != -1 and index_i == index_j:
                     return True
                 j += 1
@@ -187,7 +190,7 @@ class AtomTypingNitrogen(object):
         return False
 
     def hasDoubleBond(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < 4:
             if atom.linkage[i] != -1 and atom.bondOrder[i] == 2:
@@ -196,49 +199,52 @@ class AtomTypingNitrogen(object):
         return False
 
     def getIndexOfImineCarbon(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         atom_linked = Atom()
         if atom.isRingAtom:
+            i = 0
             while i < atom.num_linkages:
-                atom_linked = mol.atoms.elementAt(atom.linkage[i])
+                atom_linked = mol.atoms[atom.linkage[i]]
                 if atom_linked.isImineCarbon and atom_linked.isRingAtom:
                     return atom.linkage[i]
                 i += 1
         else:
+            i = 0
             while i < atom.num_linkages:
-                atom_linked = mol.atoms.elementAt(atom.linkage[i])
+                atom_linked = mol.atoms[atom.linkage[i]]
                 if atom_linked.isImineCarbon and not atom_linked.isRingAtom:
                     return atom.linkage[i]
                 i += 1
         return -1
 
     def isBipyrroleNitrogen(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         atom_linked = Atom()
         if atom.isPyrrole:
             while i < atom.num_linkages:
-                atom_linked = mol.atoms.elementAt(atom.linkage[i])
-                if atom_linked.isPyrrole and not mol.atoms.elementAt(atom.linkage[i]).isBridgingAtom and atom.ringIndex[0] != atom_linked.ringIndex[0]:
+                atom_linked = mol.atoms[atom.linkage[i]]
+                if atom_linked.isPyrrole and not mol.atoms[atom.linkage[i]].isBridgingAtom and atom.ringIndex[0] != atom_linked.ringIndex[0]:
                     return True
                 i += 1
         return False
 
     def hasCarbonyl(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < 3:
-            if atom.linkage[i] != -1 and mol.atoms.elementAt(atom.linkage[i]).isCarbonyl:
+            if atom.linkage[i] != -1 and mol.atoms[atom.linkage[i]].isCarbonyl:
                 return True
             i += 1
         return False
 
     def isTypeNG2S3(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         atom_linked = Atom()
         if not atom.isRingAtom:
             if atom.num_linkages == 3:
+                i = 0
                 while i < 3:
-                    atom_linked = mol.atoms.elementAt(atom.linkage[i])
+                    atom_linked = mol.atoms[atom.linkage[i]]
                     if atom_linked.element.lower() == "C".lower() and atom_linked.isRingAtom and atom_linked.isAromatic and atom.numHydrogenAtoms == 2:
                         return True
                     elif (atom_linked.element.lower() == "P".lower() or atom_linked.element.lower() == "S".lower()) and self.countSpecificElement(mol, atom.linkage[i], "O") == 3:
@@ -247,35 +253,35 @@ class AtomTypingNitrogen(object):
         return False
 
     def isTypeNG2R62(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         atom_linked = Atom()
         if atom.isAromatic and atom.num_linkages == 2:
             while i < 2:
-                atom_linked = mol.atoms.elementAt(atom.linkage[i])
+                atom_linked = mol.atoms[atom.linkage[i]]
                 if atom_linked.isAromatic:
                     if not atom_linked.element.lower() == "C".lower():
                         return True
                     else:
                         while j < atom_linked.num_linkages:
-                            if atom_linked.linkage[j] != atm_index and mol.atoms.elementAt(atom_linked.linkage[j]).isAromatic and not mol.atoms.elementAt(atom_linked.linkage[j]).element.lower() == "C".lower():
+                            if atom_linked.linkage[j] != atm_index and mol.atoms[atom_linked.linkage[j]].isAromatic and not mol.atoms[atom_linked.linkage[j]].element.lower() == "C".lower():
                                 return True
                             j += 1
                 i += 1
         return False
 
     def isTypeNG2R67(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         index_i = -1
         index_j = -1
         i = 0
         while i < atom.num_linkages:
-            if atom.numRingAtoms[0] == 6 and mol.atoms.elementAt(atom.linkage[i]).numRingAtoms[0] == 6 and not mol.atoms.elementAt(atom.linkage[i]).isBridgingAtom and atom.ringIndex[0] != mol.atoms.elementAt(atom.linkage[i]).ringIndex[0]:
+            if atom.numRingAtoms[0] == 6 and mol.atoms[atom.linkage[i]].numRingAtoms[0] == 6 and not mol.atoms[atom.linkage[i]].isBridgingAtom and atom.ringIndex[0] != mol.atoms[atom.linkage[i]].ringIndex[0]:
                 return True
             i += 1
         return False
 
     def isTypeNG2RC0(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         isFiveMemberedRingAtom = False
         isSixMemberedRingAtom = False
         if atom.isAromatic:
@@ -290,7 +296,7 @@ class AtomTypingNitrogen(object):
         return False
 
     def isTypeNG301(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         if not atom.isAromatic and (atom.numCarbonAtoms == 3 and atom.numHydrogenAtoms == 0):
             return True
         elif not atom.isAromatic and (atom.numCarbonAtoms == 2 and atom.numSulfurAtoms == 1 and atom.numHydrogenAtoms == 0):
@@ -298,7 +304,7 @@ class AtomTypingNitrogen(object):
         return False
 
     def isTypeNG311(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         if atom.numCarbonAtoms == 2 and atom.numHydrogenAtoms == 1:
             return True
         elif atom.numCarbonAtoms == 1 and (atom.numSulfurAtoms == 1 or atom.numOxygenAtoms == 1) and atom.numHydrogenAtoms == 1:
@@ -306,27 +312,27 @@ class AtomTypingNitrogen(object):
         return False
 
     def isTypeNG321(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         if (atom.numCarbonAtoms == 1 or atom.numSulfurAtoms == 1) and atom.numHydrogenAtoms == 2:
             return True
         return False
 
     def isTypeNG3N1(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         atom_linked = Atom()
         if atom.num_linkages == 3:
             if index != -1:
-                atom_linked = mol.atoms.elementAt(index)
+                atom_linked = mol.atoms[index]
                 if atom_linked.numHydrogenAtoms == 2 or atom_linked.numHydrogenAtoms == 1:
                     return True
         return False
 
     def isTypeNG2R53(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         atom_linked = Atom()
         if atom.isAmide:
             while i < atom.num_linkages:
-                atom_linked = mol.atoms.elementAt(atom.linkage[i])
+                atom_linked = mol.atoms[atom.linkage[i]]
                 if atom_linked.isCarbonyl and atom.ringIndex[0] == atom_linked.ringIndex[0]:
                     return True
                 i += 1

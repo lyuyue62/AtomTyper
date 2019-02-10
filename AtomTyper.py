@@ -46,14 +46,22 @@ if __name__=="__main__":
 
 
     from ChemicalToolKits import ChemicalToolKits
+    from AtomTypingCarbon import AtomTypingCarbon
+    from AtomTypingNitrogen import AtomTypingNitrogen
+    from AtomTypingOxygen import AtomTypingOxygen
+    from AtomTypingSulfur  import AtomTypingSulfur
+    from AtomTypingHalogen import AtomTypingHalogen
+    from AtomTypingMiscellaneous import AtomTypingMiscellaneous
+    from AtomTypingHydrogen import AtomTypingHydrogen
+    
     mCTK = ChemicalToolKits()
-    import AtomTypingCarbon as mATC
-    import AtomTypingNitrogen as mATN
-    import AtomTypingOxygen as mATO
-    import AtomTypingSulfur  as mATS
-    import AtomTypingHalogen as mATHal
-    import AtomTypingMiscellaneous as mATMc
-    import AtomTypingHydrogen as mATH
+    mATC = AtomTypingCarbon()
+    mATN = AtomTypingNitrogen()
+    mATO = AtomTypingOxygen()
+    mATS = AtomTypingSulfur()
+    mATHal = AtomTypingHalogen()
+    mATMc = AtomTypingMiscellaneous()
+    mATH = AtomTypingHydrogen()
 
     mol = SmallMolecule()
 

@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+from Edge import Edge
+from Atom import Atom
+from Bond import Bond
 
 class AtomTypingCarbon(object):
     def __init__(self):
@@ -9,7 +12,7 @@ class AtomTypingCarbon(object):
         atom = Atom()
         i = 0
         while i < num_atoms:
-            atom = mol.atoms.elementAt(i)
+            atom = mol.atoms[i]
             if atom.element.lower() == "C".lower():
                 if atom.num_linkages == 2:
                     if isInternalAlkyne(mol, i):
@@ -26,14 +29,14 @@ class AtomTypingCarbon(object):
                         atom.atomType = "CG2O7"
                 elif atom.num_linkages == 3:
                     if not atom.isConjugated:
-                        if isInternalAlkene(mol, i) or isImine(mol, i):
+                        if self.isInternalAlkene(mol, i) or self.isImine(mol, i):
                             #  CG2D1: internal alkene; RHC= ; imine C (-N=C-)
                             atom.atomType = "CG2D1"
-                        elif isTerminalAlkene(mol, i):
+                        elif self.isTerminalAlkene(mol, i):
                             #  CG2D2: terminal alkene; H2C=
                             atom.atomType = "CG2D2"
                         #  CG2D1O: double bond C adjacent to heteroatom. In conjugated systems, the atom to which it is double bonded must be CG2DC1.
-                        if isDoubleBondCAdjacentToHeteroatom(mol, i):
+                        if self.isDoubleBondCAdjacentToHeteroatom(mol, i):
                             atom.atomType = "CG2D1O"
                         # *CG2D2O: double bond C adjacent to heteroatom. In conjugated systems, the atom to which it is double bonded must be CG2DC2.
                         if atom.numNitrogenAtoms == 3:
@@ -43,7 +46,7 @@ class AtomTypingCarbon(object):
                             #  CG2N2 : conjugated C in amidinium cation (carbon linked to two N)
                             atom.atomType = "CG2N2"
                     else:
-                        if isInternalAlkene(mol, i):
+                        if self.isInternalAlkene(mol, i):
                             #  CG2DC1: conjugated alkenes, R2C=CR2
                             atom.atomType = "CG2DC1"
                             # *CG2DC2: conjugated alkenes, R2C=CR2. What is the different between CG2DC1 and CG2DC2?
@@ -51,7 +54,7 @@ class AtomTypingCarbon(object):
                             #  CG2DC3: conjugated alkenes, H2C=
                             atom.atomType = "CG2DC3"
                         #  CG2D1O: double bond C adjacent to heteroatom. In conjugated systems, the atom to which it is double bonded must be CG2DC1.
-                        if isDoubleBondCAdjacentToHeteroatom(mol, i):
+                        if self.isDoubleBondCAdjacentToHeteroatom(mol, i):
                             atom.atomType = "CG2D1O"
                         # *CG2D2O: double bond C adjacent to heteroatom. In conjugated systems, the atom to which it is double bonded must be CG2DC2.
                         if atom.numNitrogenAtoms == 3:
@@ -166,37 +169,43 @@ class AtomTypingCarbon(object):
                                 #  CG2RC7: sp2 ring connection with single bond(!), AZUL, azulene, kevo
                                 atom.atomType = "CG2RC7"
                 elif atom.num_linkages == 4:
+
+                    num_F = self.countSpecificElement( mol, i, "F" )
+
                     if atom.numHydrogenAtoms == 0:
                         #  CG301: aliphatic C, no hydrogens, neopentane
                         atom.atomType = "CG301"
                     elif atom.numHydrogenAtoms == 1:
                         #  CG311: aliphatic C with 1 H, CH
                         atom.atomType = "CG311"
-                        if hasAdjecentProtonatedNitrogen(mol, i):
+                        if self.hasAdjecentProtonatedNitrogen(mol, i):
                             #  CG314: aliphatic C with 1 H, adjacent to positive N (PROT NTER) (+)
                             atom.atomType = "CG314"
                     elif atom.numHydrogenAtoms == 2:
                         #  CG321: aliphatic C for CH2
                         atom.atomType = "CG321"
-                        if hasAdjecentProtonatedNitrogen(mol, i):
+                        if self.hasAdjecentProtonatedNitrogen(mol, i):
                             #  CG324: aliphatic C for CH2, adjacent to positive N (piperidine) (+)
                             atom.atomType = "CG324"
                     elif atom.numHydrogenAtoms == 3:
                         #  CG331: aliphatic C for methyl group (-CH3)
                         atom.atomType = "CG331"
+
+                        index = self.getIndex( mol, i, "N" );
+
                         if index != -1:
-                            if mol.atoms.elementAt(index).isProtonatedNitrogen:
+                            if mol.atoms[index].isProtonatedNitrogen:
                                 #  CG334: aliphatic C for methyl group (-CH3), adjacent to positive N (PROT NTER) (+)
                                 atom.atomType = "CG334"
                             else:
-                                if not hasDoubleBond(mol, index):
-                                    if countMethyl(mol, index) == 3:
+                                if not self.hasDoubleBond(mol, index):
+                                    if self.countMethyl(mol, index) == 3:
                                         #  CG3AM0: aliphatic C for CH3, NEUTRAL trimethylamine methyl carbon (#)
                                         atom.atomType = "CG3AM0"
-                                    elif countMethyl(mol, index) == 2 and mol.atoms.elementAt(index).numHydrogenAtoms == 1:
+                                    elif self.countMethyl(mol, index) == 2 and mol.atoms[index].numHydrogenAtoms == 1:
                                         #  CG3AM1: aliphatic C for CH3, NEUTRAL dimethylamine methyl carbon (#)
                                         atom.atomType = "CG3AM1"
-                                    elif countMethyl(mol, index) == 1 and mol.atoms.elementAt(index).numHydrogenAtoms == 2:
+                                    elif self.countMethyl(mol, index) == 1 and mol.atoms[index].numHydrogenAtoms == 2:
                                         #  CG3AM2: aliphatic C for CH3, NEUTRAL methylamine methyl carbon (#)
                                         atom.atomType = "CG3AM2"
                     if num_F == 3:
@@ -210,7 +219,7 @@ class AtomTypingCarbon(object):
                         atom.atomType = "CG322"
                     if atom.numSulfurAtoms == 1:
                         #  CG323: aliphatic C for CH2, thiolate carbon
-                        if index != -1 and mol.atoms.elementAt(index).isDeprotonatedSulfur:
+                        if index != -1 and mol.atoms[index].isDeprotonatedSulfur:
                             atom.atomType = "CG323"
                     if atom.isRingAtom:
                         if not is_ring_brdiging_atom:
@@ -228,13 +237,13 @@ class AtomTypingCarbon(object):
                                     #  CG3C51: 5-mem ring aliphatic CH  (proline CA, furanoses)
                                     atom.atomType = "CG3C51"
                                     #  CG3C53: 5-mem ring aliphatic CH  adjacent to positive N (proline.H+ CA) (+)
-                                    if hasAdjecentProtonatedNitrogen(mol, i):
+                                    if self.hasAdjecentProtonatedNitrogen(mol, i):
                                         atom.atomType = "CG3C53"
                                 elif atom.numHydrogenAtoms == 2:
                                     #  CG3C52: 5-mem ring aliphatic CH2 (proline CB/CG/CD, THF, deoxyribose)
                                     atom.atomType = "CG3C52"
                                     #  CG3C54: 5-mem ring aliphatic CH2 adjacent to positive N (proline.H+ CD) (+)
-                                    if hasAdjecentProtonatedNitrogen(mol, i):
+                                    if self.hasAdjecentProtonatedNitrogen(mol, i):
                                         atom.atomType = "CG3C54"
                         else:
                             if getAtomsOfSmallestRing(mol, i) <= 5:
@@ -243,26 +252,26 @@ class AtomTypingCarbon(object):
             i += 1
 
     def getIndex(self, mol, atm_index, element):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < atom.num_linkages:
-            if mol.atoms.elementAt(atom.linkage[i]).element.lower() == element.lower():
+            if mol.atoms[atom.linkage[i]].element.lower() == element.lower():
                 return atom.linkage[i]
             i += 1
         return -1
 
     def countSpecificElement(self, mol, atm_index, element):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         num_elements = 0
         i = 0
         while i < atom.num_linkages:
-            if mol.atoms.elementAt(atom.linkage[i]).element.lower() == element.lower():
+            if mol.atoms[atom.linkage[i]].element.lower() == element.lower():
                 num_elements += 1
             i += 1
         return num_elements
 
     def hasDoubleBond(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < atom.num_linkages:
             if atom.bondOrder[i] == 2:
@@ -271,17 +280,17 @@ class AtomTypingCarbon(object):
         return False
 
     def countMethyl(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         num_methyls = 0
         i = 0
         while i < atom.num_linkages:
-            if mol.atoms.elementAt(atom.linkage[i]).isMethyl:
+            if mol.atoms[atom.linkage[i]].isMethyl:
                 num_methyls += 1
             i += 1
         return num_methyls
 
     def getAtomsOfSmallestRing(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         min_num_ring_atoms = 100
         i = 0
         while i < 3:
@@ -291,7 +300,7 @@ class AtomTypingCarbon(object):
         return min_num_ring_atoms
 
     def isAtomInFiveMemberedRing(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < 3:
             if atom.numRingAtoms[i] == 5:
@@ -300,7 +309,7 @@ class AtomTypingCarbon(object):
         return -1
 
     def isAtomInSixMemberedRing(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < 3:
             if atom.numRingAtoms[i] == 6:
@@ -309,7 +318,7 @@ class AtomTypingCarbon(object):
         return -1
 
     def isAtomInSevenMemberedRing(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < 3:
             if atom.numRingAtoms[i] == 7:
@@ -322,9 +331,9 @@ class AtomTypingCarbon(object):
         index_j = int()
         i = 0
         while i < 3:
-            index_i = mol.atoms.elementAt(atom_i).ringIndex[i]
+            index_i = mol.atoms[atom_i].ringIndex[i]
             while j < 3:
-                index_j = mol.atoms.elementAt(atom_j).ringIndex[j]
+                index_j = mol.atoms[atom_j].ringIndex[j]
                 if index_i != -1 and index_j != -1 and index_i != index_j:
                     return True
                 j += 1
@@ -336,9 +345,9 @@ class AtomTypingCarbon(object):
         index_j = int()
         i = 0
         while i < 3:
-            index_i = mol.atoms.elementAt(atom_i).ringIndex[i]
+            index_i = mol.atoms[atom_i].ringIndex[i]
             while j < 3:
-                index_j = mol.atoms.elementAt(atom_j).ringIndex[j]
+                index_j = mol.atoms[atom_j].ringIndex[j]
                 if index_i != -1 and index_j != -1 and index_i == index_j:
                     return True
                 j += 1
@@ -346,18 +355,18 @@ class AtomTypingCarbon(object):
         return False
 
     def hasExocyclicDoubleBond(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         atom_linked = Atom()
         if atom.isRingAtom:
             while i < atom.num_linkages:
-                atom_linked = mol.atoms.elementAt(atom.linkage[i])
+                atom_linked = mol.atoms[atom.linkage[i]]
                 if not self.hasSameRingIndex(mol, atm_index, atom.linkage[i]) and atom.bondOrder[i] == 2:
                     return True
                 i += 1
         return False
 
     def bridgedAtomBelongsToAromaticRing(self, mol, atm_index, num_ring_atoms, aRingAromacity):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < 3:
             if atom.ringIndex[i] != -1 and atom.numRingAtoms[i] == num_ring_atoms and aRingAromacity[atom.ringIndex[i]]:
@@ -366,7 +375,7 @@ class AtomTypingCarbon(object):
         return False
 
     def allBridgedRingsAreAromatic(self, mol, atm_index, aRingAromacity):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < 3:
             if atom.ringIndex[i] != -1 and not aRingAromacity[atom.ringIndex[i]]:
@@ -375,89 +384,89 @@ class AtomTypingCarbon(object):
         return True
 
     def isInternalAlkyne(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < atom.num_linkages:
-            if atom.bondOrder[i] == 3 and mol.atoms.elementAt(atom.linkage[i]).element.lower() == "C".lower():
+            if atom.bondOrder[i] == 3 and mol.atoms[atom.linkage[i]].element.lower() == "C".lower():
                 if atom.numHydrogenAtoms == 0:
                     return True
             i += 1
         return False
 
     def isTerminalAlkyne(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < atom.num_linkages:
-            if atom.bondOrder[i] == 3 and mol.atoms.elementAt(atom.linkage[i]).element.lower() == "C".lower():
+            if atom.bondOrder[i] == 3 and mol.atoms[atom.linkage[i]].element.lower() == "C".lower():
                 if atom.numHydrogenAtoms == 1:
                     return True
             i += 1
         return False
 
     def isForCyanoGroup(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < atom.num_linkages:
-            if atom.bondOrder[i] == 3 and mol.atoms.elementAt(atom.linkage[i]).element.lower() == "N".lower():
+            if atom.bondOrder[i] == 3 and mol.atoms[atom.linkage[i]].element.lower() == "N".lower():
                 return True
             i += 1
         return False
 
     def isInternalAlkene(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < atom.num_linkages:
-            if atom.bondOrder[i] == 2 and (mol.atoms.elementAt(atom.linkage[i]).element.lower() == "C".lower() or mol.atoms.elementAt(atom.linkage[i]).element.lower() == "N".lower()):
+            if atom.bondOrder[i] == 2 and (mol.atoms[atom.linkage[i]].element.lower() == "C".lower() or mol.atoms[atom.linkage[i]].element.lower() == "N".lower()):
                 if atom.numHydrogenAtoms != 2:
                     return True
             i += 1
         return False
 
     def isDoubleBondCAdjacentToHeteroatom(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < atom.num_linkages:
-            if atom.bondOrder[i] == 2 and mol.atoms.elementAt(atom.linkage[i]).element.lower() == "C".lower():
+            if atom.bondOrder[i] == 2 and mol.atoms[atom.linkage[i]].element.lower() == "C".lower():
                 while j < atom.num_linkages:
                     if j != i:
-                        if not mol.atoms.elementAt(atom.linkage[j]).element.lower() == "H".lower() and not mol.atoms.elementAt(atom.linkage[j]).element.lower() == "C".lower():
+                        if not mol.atoms[atom.linkage[j]].element.lower() == "H".lower() and not mol.atoms[atom.linkage[j]].element.lower() == "C".lower():
                             return True
                     j += 1
             i += 1
         return False
 
     def isImine(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < atom.num_linkages:
-            if atom.bondOrder[i] == 2 and mol.atoms.elementAt(atom.linkage[i]).element.lower() == "N".lower():
+            if atom.bondOrder[i] == 2 and mol.atoms[atom.linkage[i]].element.lower() == "N".lower():
                 return True
             i += 1
         return False
 
     def isTerminalAlkene(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < atom.num_linkages:
-            if atom.bondOrder[i] == 2 and mol.atoms.elementAt(atom.linkage[i]).element.lower() == "C".lower():
+            if atom.bondOrder[i] == 2 and mol.atoms[atom.linkage[i]].element.lower() == "C".lower():
                 if atom.numHydrogenAtoms == 2:
                     return True
             i += 1
         return False
 
     def isNeutralCarboxylicAcid(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         atom_linked = Atom()
         if atom.numOxygenAtoms == 2:
             while i < atom.num_linkages:
-                atom_linked = mol.atoms.elementAt(atom.linkage[i])
+                atom_linked = mol.atoms[atom.linkage[i]]
                 if atom.bondOrder[i] == 1 and atom_linked.element.lower() == "O".lower() and atom_linked.num_linkages == 2:
                     return True
                 i += 1
         return False
 
     def isUreaOrCarbonate(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         if atom.numSulfurAtoms == 3:
             return True
         if atom.numOxygenAtoms == 3:
@@ -467,28 +476,28 @@ class AtomTypingCarbon(object):
         return False
 
     def isCO2Carbon(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         if atom.num_linkages == 2 and (atom.numOxygenAtoms == 2 or (atom.numOxygenAtoms == 1 and atom.numNitrogenAtoms == 1)):
             return True
         return False
 
     def hasDoubleBondedNitrogen(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < 3:
-            if atom.linkage[i] != -1 and mol.atoms.elementAt(atom.linkage[i]).element.lower() == "N".lower() and atom.bondOrder[i] == 2:
+            if atom.linkage[i] != -1 and mol.atoms[atom.linkage[i]].element.lower() == "N".lower() and atom.bondOrder[i] == 2:
                 return True
             i += 1
         return False
 
     def isTypeCG2R53(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         atom_linked = Atom()
         hasHeteroAtomSingleBond = False
         hasHeteroAtomDoubleBond = False
         i = 0
         while i < atom.num_linkages:
-            atom_linked = mol.atoms.elementAt(atom.linkage[i])
+            atom_linked = mol.atoms[atom.linkage[i]]
             if atom.bondOrder[i] == 1 and not atom_linked.element.lower() == "H".lower() and not atom_linked.element.lower() == "C".lower():
                 hasHeteroAtomSingleBond = True
             if atom.bondOrder[i] == 2 and not atom_linked.element.lower() == "H".lower() and not atom_linked.element.lower() == "C".lower():
@@ -499,21 +508,21 @@ class AtomTypingCarbon(object):
         return False
 
     def isBipyrroleCarbon(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         atom_linked = Atom()
         if atom.isPyrrole:
             while i < atom.num_linkages:
-                atom_linked = mol.atoms.elementAt(atom.linkage[i])
-                if atom_linked.isPyrrole and not mol.atoms.elementAt(atom.linkage[i]).isBridgingAtom and (atom.ringIndex[0] != atom_linked.ringIndex[0]):
+                atom_linked = mol.atoms[atom.linkage[i]]
+                if atom_linked.isPyrrole and not mol.atoms[atom.linkage[i]].isBridgingAtom and (atom.ringIndex[0] != atom_linked.ringIndex[0]):
                     return True
                 i += 1
         return False
 
     def isTypeCG25C1(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < atom.num_linkages:
-            if atom.bondOrder[i] == 2 and mol.atoms.elementAt(atom.linkage[i]).element.lower() == "C".lower():
+            if atom.bondOrder[i] == 2 and mol.atoms[atom.linkage[i]].element.lower() == "C".lower():
                 if atom.numHydrogenAtoms != 2:
                     return True
             i += 1
@@ -521,42 +530,42 @@ class AtomTypingCarbon(object):
 
     def isTypeCG2R64(self, mol, atm_index):
         # between 2 or 3 Ns and double-bound to one of them
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         if atom.numNitrogenAtoms == 2 or atom.numNitrogenAtoms == 3:
             while i < atom.num_linkages:
-                if mol.atoms.elementAt(atom.linkage[i]).element.lower() == "N".lower() and mol.atoms.elementAt(atom.linkage[i]).isRingAtom and (atom.bondOrder[i] == 2 or mol.atoms.elementAt(atom.linkage[i]).isAromatic):
+                if mol.atoms[atom.linkage[i]].element.lower() == "N".lower() and mol.atoms[atom.linkage[i]].isRingAtom and (atom.bondOrder[i] == 2 or mol.atoms[atom.linkage[i]].isAromatic):
                     return True
                 i += 1
         return False
 
     def isTypeCG2R66(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < 4:
-            if atom.linkage[i] != -1 and mol.atoms.elementAt(atom.linkage[i]).element.lower() == "F".lower():
+            if atom.linkage[i] != -1 and mol.atoms[atom.linkage[i]].element.lower() == "F".lower():
                 return True
             i += 1
         return False
 
     def isTypeCG2R67(self, mol, atm_index, is_ring_bridging_atom, aRingAromacity):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         atom_linked = Atom()
         index_i = -1
         index_j = -1
         if not is_ring_bridging_atom:
             if atom.numRingAtoms[0] == 6 and atom.isAromatic:
                 while i < atom.num_linkages:
-                    atom_linked = mol.atoms.elementAt(atom.linkage[i])
-                    if not mol.atoms.elementAt(atom.linkage[i]).isBridgingAtom and atom_linked.numRingAtoms[0] == 6 and atom_linked.isAromatic:
+                    atom_linked = mol.atoms[atom.linkage[i]]
+                    if not mol.atoms[atom.linkage[i]].isBridgingAtom and atom_linked.numRingAtoms[0] == 6 and atom_linked.isAromatic:
                         if numOverlappedRings(mol, atom, atom_linked) == 0:
                             return True
                     i += 1
         else:
             if ringIndex != -1 and aRingAromacity[ringIndex]:
                 while i < atom.num_linkages:
-                    atom_linked = mol.atoms.elementAt(atom.linkage[i])
+                    atom_linked = mol.atoms[atom.linkage[i]]
                     ringIndex = self.isAtomInSixMemberedRing(mol, atom.linkage[i])
-                    if mol.atoms.elementAt(atom.linkage[i]).isBridgingAtom and ringIndex != -1 and aRingAromacity[ringIndex]:
+                    if mol.atoms[atom.linkage[i]].isBridgingAtom and ringIndex != -1 and aRingAromacity[ringIndex]:
                         if numOverlappedRings(mol, atom, atom_linked) == 1:
                             return True
                     i += 1
@@ -574,7 +583,7 @@ class AtomTypingCarbon(object):
         return num_overlapped_rings
 
     def isTypeCG2RC0(self, mol, atm_index, aRingAromacity):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         fiveMemberedRingIndex = self.isAtomInFiveMemberedRing(mol, atm_index)
         sixMemberedRingIndex = self.isAtomInSixMemberedRing(mol, atm_index)
         if fiveMemberedRingIndex != -1 and sixMemberedRingIndex != -1 and aRingAromacity[sixMemberedRingIndex]:
@@ -582,19 +591,20 @@ class AtomTypingCarbon(object):
         return False
 
     def hasAdjecentProtonatedNitrogen(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         atom_linked = Atom()
         atom_linked_linked = Atom()
         i = 0
         while i < atom.num_linkages:
-            atom_linked = mol.atoms.elementAt(atom.linkage[i])
+            atom_linked = mol.atoms[atom.linkage[i]]
             if atom_linked.element.lower() == "N".lower():
                 if atom_linked.isProtonatedNitrogen:
                     return True
                 else:
+                    j = 0
                     while j < atom_linked.num_linkages:
                         if atom_linked.linkage[j] != atm_index:
-                            atom_linked_linked = mol.atoms.elementAt(atom_linked.linkage[j])
+                            atom_linked_linked = mol.atoms[atom_linked.linkage[j]]
                             if atom_linked_linked.isProtonatedImineGroup:
                                 return True
                         j += 1
