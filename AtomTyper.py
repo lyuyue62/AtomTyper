@@ -1,27 +1,4 @@
 #!/usr/bin/env python
-
-'''
-Some variables were deleted since they are never used in this file:
-        FileInputStream struct_stream;
-        BufferedReader struct_reader;
-        String struct_line;
-        StringTokenizer st;
-        ...
-
-Some were deleted since them must be declared in Java but useless in Python:
-        DataOutputStream out;
-        String [] array;
-        String value = null;
-        ...
-
-Some functions from other file are not sure, e.g.:
-        mol = mCTK.readMol2File( mMolecule )
-        mol is from SmallMolecule, which initialized with empty lists without a specific type. But they should be types like
-        Atom, Bond... . I'm not sure if it works well.
-Thanks!
-Yue
-
-'''
 import sys
 sys.dont_write_bytecode = True
 
@@ -224,7 +201,7 @@ if __name__=="__main__":
         atoms_combi = mol.atoms[ mol.bonds[i].i ].atomType + " " + mol.atoms[ mol.bonds[i].j ].atomType
         atoms_combi_sorted = mCTK.orderAtoms( hAtomPriority, atoms_combi, 1 )
 
-        if ( atoms_combi_sorted not in  hBondParameter ) or (hBondParameter[atoms_combi_sorted] == None):
+        if  atoms_combi_sorted not in  hBondParameter :
             if(atoms_combi_sorted not in hTemp):
                 hTemp[ atoms_combi_sorted ] =  "1"
                 vNonavailable.append( atoms_combi_sorted + "\t" + "1" )
@@ -234,7 +211,7 @@ if __name__=="__main__":
         atoms_combi = mol.atoms[ int (array[0]) ].atomType + " " + mol.atoms[ int(array[1] ) ].atomType + " " + mol.atoms[ int( array[2] ) ].atomType
         atoms_combi_sorted = mCTK.orderAtoms( hAtomPriority, atoms_combi, 2 )
 
-        if (atoms_combi_sorted not in hAngleParameter) or (hAngleParameter[atoms_combi_sorted] == None):
+        if atoms_combi_sorted not in hAngleParameter:
             if(atoms_combi_sorted not in hTemp):
                 hTemp[ atoms_combi_sorted] = "1"
                 vNonavailable.append( atoms_combi_sorted + "\t" + "2" )
@@ -244,7 +221,7 @@ if __name__=="__main__":
         atoms_combi = mol.atoms[ int( array[0] ) ].atomType + " " + mol.atoms[ int( array[1] ) ].atomType + " " + mol.atoms[ int( array[2] ) ].atomType + " " + mol.atoms[ int( array[3] ) ].atomType
         atoms_combi_sorted = mCTK.orderAtoms( hAtomPriority, atoms_combi, 3 )
 
-        if (atoms_combi_sorted not in hDihedralParameter) or (hDihedralParameter[atoms_combi_sorted] == None):
+        if atoms_combi_sorted not in hDihedralParameter:
             if( atoms_combi_sorted not in hTemp ):
                 hTemp[atoms_combi_sorted] = "1"
                 vNonavailable.append( atoms_combi_sorted + "\t" + "3" )
@@ -254,7 +231,7 @@ if __name__=="__main__":
         atoms_combi = mol.atoms[ int( array[0] ) ].atomType + " " + mol.atoms[ int( array[1] ) ].atomType + " " + mol.atoms[ int( array[2] )].atomType + " " + mol.atoms[ int( array[3] ) ].atomType
         atoms_combi_sorted = mCTK.orderAtoms( hAtomPriority, atoms_combi, 4 )
 
-        if( atoms_combi_sorted not in hImproperParameter) or (hImproperParameter[atoms_combi_sorted] == None ):
+        if atoms_combi_sorted not in hImproperParameter:
             if( atoms_combi_sorted not in hTemp):
                 hTemp[atoms_combi_sorted] = "1"
                 vNonavailable.append( atoms_combi_sorted + "\t" + "4" )

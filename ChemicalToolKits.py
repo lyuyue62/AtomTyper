@@ -96,8 +96,9 @@ class ChemicalToolKits(object):
                                 break
                             if line[0] != '!':
                                 st = line.split()
-                                hBondParameter[st[0] + " " + st[1]] = st[2] + " " + st[3]
-                    break
+                                if len(st) != 0:
+                                    hBondParameter[st[0] + " " + st[1]] = st[2] + " " + st[3]
+                        break
             f.close()
 
         except Exception as e:
@@ -115,8 +116,9 @@ class ChemicalToolKits(object):
                                 break
                             if line[0] != '!':
                                 st = line.split()
-                                hBondParameter[st[0] + " " + st[1] + " " + st[2]] = st[3] + " " + st[4]
-                    break
+                                if len(st) != 0:
+                                    hAngleParameter[st[0] + " " + st[1] + " " + st[2]] = st[3] + " " + st[4]
+                        break
             f.close()
 
         except Exception as e:
@@ -134,8 +136,9 @@ class ChemicalToolKits(object):
                                 break
                             if line[0] != '!':
                                 st = line.split()
-                                hBondParameter[st[0] + " " + st[1] + " " + st[2] + " " + st[3]] = st[4] + " " + st[5] + " " + st[6]
-                    break
+                                if len(st) != 0:
+                                    hDihedralParameter[st[0] + " " + st[1] + " " + st[2] + " " + st[3]] = st[4] + " " + st[5] + " " + st[6]
+                        break
             f.close()
 
         except Exception as e:
@@ -153,8 +156,9 @@ class ChemicalToolKits(object):
                                 break
                             if line[0] != '!':
                                 st = line.split()
-                                hBondParameter[st[0] + " " + st[1] + " " + st[2] + " " + st[3]] = st[4] + " " + st[5] + " " + st[6]
-                    break
+                                if len(st) != 0:
+                                    hImproperParameter[st[0] + " " + st[1] + " " + st[2] + " " + st[3]] = st[4] + " " + st[5] + " " + st[6]
+                        break
             f.close()
 
         except Exception as e:
