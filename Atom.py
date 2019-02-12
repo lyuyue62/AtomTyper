@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import sys
+sys.dont_write_bytecode = True
 
 class Atom(object):
     atom_name = str()

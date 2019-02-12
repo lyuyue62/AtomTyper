@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+import sys
+sys.dont_write_bytecode = True
+
 from Edge import Edge
 from Atom import Atom
 from Bond import Bond

@@ -3,6 +3,9 @@
 import math
 import traceback
 import logging
+import sys
+sys.dont_write_bytecode = True
+
 
 from Edge import Edge
 from Atom import Atom

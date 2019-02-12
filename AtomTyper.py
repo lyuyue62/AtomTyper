@@ -23,6 +23,8 @@ Yue
 
 '''
 import sys
+sys.dont_write_bytecode = True
+
 import math
 import numpy as np
 from SmallMolecule import SmallMolecule
