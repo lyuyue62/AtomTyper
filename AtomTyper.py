@@ -264,7 +264,7 @@ if __name__=="__main__":
     # =========================
 
     output_file = "output.top"
-    with open (output_file, 'r+') as out:
+    with open (output_file, 'w') as out:
 
         for i in range(len(mol.atoms)):
             out.write( "ATOM ")
@@ -293,7 +293,7 @@ if __name__=="__main__":
 
 
     output_file = "output.str"
-    with open(output_file, 'r+') as out:
+    with open(output_file, 'w') as out:
         kind_prev = 0
         kind_curr = 0
 

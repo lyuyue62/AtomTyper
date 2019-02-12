@@ -163,12 +163,13 @@ class ChemicalToolKits(object):
         try:
             with open (file_name) as f:
                 for line in f:
-                    array = line.strip().split("\t")
+                    array = line.strip().split('\t')
                     hAtomPriority[array[0]] = array[1]
             f.close()
 
         except Exception as e:
             logging.error(traceback.format_exc())
+
         return hAtomPriority
 
     def readAtomTypes(self, file_name):
