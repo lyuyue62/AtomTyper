@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+from Edge import Edge
+from Atom import Atom
+from Bond import Bond
 
 class AtomTypingOxygen(object):
     def __init__(self):
@@ -11,9 +14,9 @@ class AtomTypingOxygen(object):
         index = -1
         i = 0
         while i < num_atoms:
-            atom = mol.atoms.elementAt(i)
+            atom = mol.atoms[i]
             if atom.element.lower() == "O".lower():
-                atom_linked = mol.atoms.elementAt(atom.linkage[0])
+                atom_linked = mol.atoms[atom.linkage[0]]
                 if not atom.isRingAtom:
                     if atom_linked.isCarbonyl:
                         if atom_linked.numRingAtoms[0] == 6 and atom_linked.isAromatic:
@@ -38,7 +41,7 @@ class AtomTypingOxygen(object):
                             else:
                                 #  OG2D3: carbonyl O: ketones
                                 atom.atomType = "OG2D3"
-                    elif isTypeOG2D5(mol, i):
+                    elif self.isTypeOG2D5(mol, i):
                         #  OG2D5: CO2 oxygen
                         atom.atomType = "OG2D5"
                     elif atom_linked.atomType != None and atom_linked.atomType.lower() == "NG2O1".lower():
@@ -63,7 +66,7 @@ class AtomTypingOxygen(object):
                     if atom.isEster and atom.num_linkages == 2 and atom.numCarbonAtoms == 2:
                         #  OG302: ester -O-
                         atom.atomType = "OG302"
-                    elif isTypeOG304(mol, i):
+                    elif self.isTypeOG304(mol, i):
                         #  OG304: linkage oxygen in pyrophosphate/pyrosulphate
                         atom.atomType = "OG304"
                     elif not atom.isEster and atom.isDeprotonatedOxygen and (atom.numCarbonAtoms == 1 or atom.numNitrogenAtoms == 1):
@@ -88,34 +91,34 @@ class AtomTypingOxygen(object):
             i += 1
 
     def getIndexAtomType(self, mol, atm_index, atomType):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < 5:
             if atom.linkage[i] == -1:
                 return -1
             else:
-                if mol.atoms.elementAt(atom.linkage[i]).atomType != None and mol.atoms.elementAt(atom.linkage[i]).atomType.lower() == atomType.lower():
+                if mol.atoms[atom.linkage[i]].atomType != None and mol.atoms[atom.linkage[i]].atomType.lower() == atomType.lower():
                     return atom.linkage[i]
             i += 1
         return -1
 
     def getIndexElement(self, mol, atm_index, element):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < 5:
             if atom.linkage[i] == -1:
                 return -1
             else:
-                if mol.atoms.elementAt(atom.linkage[i]).element.lower() == element.lower():
+                if mol.atoms[atom.linkage[i]].element.lower() == element.lower():
                     return atom.linkage[i]
             i += 1
         return -1
 
     def isTypeOG2D5(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         atom_linked = Atom()
         if atom.num_linkages == 1:
-            atom_linked = mol.atoms.elementAt(atom.linkage[0])
+            atom_linked = mol.atoms[atom.linkage[0]]
             if atom_linked.element.lower() == "C".lower() and atom_linked.num_linkages == 2 and atom_linked.numOxygenAtoms == 2:
                 return True
             elif atom_linked.element.lower() == "C".lower() and atom_linked.num_linkages == 2 and atom_linked.numOxygenAtoms == 1 and atom_linked.numNitrogenAtoms == 1:
@@ -123,26 +126,26 @@ class AtomTypingOxygen(object):
         return False
 
     def isTypeOG304(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         atom_linked_1 = Atom()
         atom_linked_2 = Atom()
         if atom.num_linkages == 2:
-            atom_linked_1 = mol.atoms.elementAt(atom.linkage[0])
-            atom_linked_2 = mol.atoms.elementAt(atom.linkage[1])
+            atom_linked_1 = mol.atoms[atom.linkage[0]]
+            atom_linked_2 = mol.atoms[atom.linkage[1]]
             if (atom_linked_1.element.lower() == "P".lower() or atom_linked_1.element.lower() == "S".lower()) and atom_linked_1.numOxygenAtoms == 4:
                 if (atom_linked_2.element.lower() == "P".lower() or atom_linked_2.element.lower() == "S".lower()) and atom_linked_2.numOxygenAtoms == 4:
                     return True
         return False
 
     def linkedCarbonHasDoundBond(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         if atom.num_linkages == 2 and atom.numCarbonAtoms == 2:
             if hasDoubleBond(mol, atom.linkage[0]) or hasDoubleBond(mol, atom.linkage[1]):
                 return True
         return False
 
     def hasDoubleBond(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < atom.num_linkages:
             if atom.bondOrder[i] == 2 or atom.bondType[i].lower() == "ar".lower():

@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+from Edge import Edge
+from Atom import Atom
+from Bond import Bond
+
 class AtomTypingHydrogen(object):
     def __init__(self):
         """__init__"""
@@ -8,9 +12,12 @@ class AtomTypingHydrogen(object):
         atom_linked = Atom()
         i = 0
         while i < num_atoms:
-            atom = mol.atoms.elementAt(i)
+            atom = mol.atoms[i]
             if atom.element.lower() == "H".lower():
-                atom_linked = mol.atoms.elementAt(atom.linkage[0])
+                atom_linked = mol.atoms[atom.linkage[0]]
+                element = atom_linked.element
+                atomType = atom_linked.atomType
+
                 if atom_linked.isAromatic:
                     #  HGR61: aromatic H
                     atom.atomType = "HGR61"
@@ -25,13 +32,16 @@ class AtomTypingHydrogen(object):
                         elif atom_linked.numHydrogenAtoms == 3:
                             #  HGA3: alphatic proton, CH3
                             atom.atomType = "HGA3"
-                        if hasCarbonDoubleBond(mol, atom_linked):
+                        if self.hasCarbonDoubleBond(mol, atom_linked):
                             if atom_linked.numHydrogenAtoms == 1:
                                 #  HGA4: alkene proton; RHC=
                                 atom.atomType = "HGA4"
                             elif atom_linked.numHydrogenAtoms == 2:
                                 #  HGA5: alkene proton; H2C=CR
                                 atom.atomType = "HGA5"
+
+                        num_fluorides = self.countSpecificElement(mol, atom_linked, "F")
+
                         if num_fluorides > 0:
                             if num_fluorides == 1:
                                 #  HGA6: aliphatic H on fluorinated C, monofluoro
@@ -40,18 +50,22 @@ class AtomTypingHydrogen(object):
                                 #  HGA7: aliphatic H on fluorinated C, difluoro
                                 atom.atomType = "HGA7"
                         if atom_linked.numNitrogenAtoms > 0:
-                            if not mol.atoms.elementAt(index).isProtonatedNitrogen:
-                                if num_methyl == 3 and mol.atoms.elementAt(index).numHydrogenAtoms == 0:
+                            index = self.getIndex(mol, atom_linked, "N")
+
+                            if not mol.atoms[index].isProtonatedNitrogen:
+                                num_methyl = self.countMethyl(mol, mol.atoms[index])
+                                
+                                if num_methyl == 3 and mol.atoms[index].numHydrogenAtoms == 0:
                                     #  HGAAM0: aliphatic H, NEUTRAL trimethylamine (#)
                                     atom.atomType = "HGAAM0"
-                                elif num_methyl == 2 and mol.atoms.elementAt(index).numHydrogenAtoms == 1:
+                                elif num_methyl == 2 and mol.atoms[index].numHydrogenAtoms == 1:
                                     #  HGAAM1: aliphatic H, NEUTRAL dimethylamine (#)
                                     atom.atomType = "HGAAM1"
-                                elif num_methyl == 1 and mol.atoms.elementAt(index).numHydrogenAtoms == 2:
+                                elif num_methyl == 1 and mol.atoms[index].numHydrogenAtoms == 2:
                                     #  HGAAM2: aliphatic H, NEUTRAL methylamine (#)
                                     atom.atomType = "HGAAM2"
                         if atom_linked.numHydrogenAtoms == 3 and atom_linked.numNitrogenAtoms == 1:
-                            if mol.atoms.elementAt(index).atomType.lower() == "NG3P0".lower():
+                            if mol.atoms[index].atomType.lower() == "NG3P0".lower():
                                 #  HGP5: polar H on quarternary ammonium salt (choline)
                                 atom.atomType = "HGP5"
                     if atom_linked.num_linkages == 2 and hasTripleBond(atom_linked):
@@ -141,13 +155,13 @@ class AtomTypingHydrogen(object):
     def hasCarbonDoubleBond(self, mol, atom):
         i = 0
         while i < atom.num_linkages:
-            if mol.atoms.elementAt(atom.linkage[i]).element.lower() == "C".lower() and atom.bondOrder[i] == 2:
+            if mol.atoms[atom.linkage[i]].element.lower() == "C".lower() and atom.bondOrder[i] == 2:
                 return True
             i += 1
         return False
 
     def hasDoubleBond(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         i = 0
         while i < atom.num_linkages:
             if atom.bondOrder[i] == 2:
@@ -175,7 +189,7 @@ class AtomTypingHydrogen(object):
         num_elements = 0
         i = 0
         while i < atm.num_linkages:
-            if mol.atoms.elementAt(atm.linkage[i]).element.lower() == element.lower():
+            if mol.atoms[atm.linkage[i]].element.lower() == element.lower():
                 num_elements += 1
             i += 1
         return num_elements
@@ -183,7 +197,7 @@ class AtomTypingHydrogen(object):
     def getIndex(self, mol, atm, element):
         i = 0
         while i < atm.num_linkages:
-            if mol.atoms.elementAt(atm.linkage[i]).element.lower() == element.lower():
+            if mol.atoms[atm.linkage[i]].element.lower() == element.lower():
                 return atm.linkage[i]
             i += 1
         return -1
@@ -192,7 +206,7 @@ class AtomTypingHydrogen(object):
         num_methyl = 0
         i = 0
         while i < atm.num_linkages:
-            if mol.atoms.elementAt(atm.linkage[i]).isMethyl:
+            if mol.atoms[atm.linkage[i]].isMethyl:
                 num_methyl += 1
             i += 1
         return num_methyl
@@ -200,7 +214,7 @@ class AtomTypingHydrogen(object):
     def hasAromaticBond(self, mol, atm):
         i = 0
         while i < atm.num_linkages:
-            if mol.atoms.elementAt(atm.linkage[i]).isAromatic:
+            if mol.atoms[atm.linkage[i]].isAromatic:
                 return True
             i += 1
         return False
@@ -208,7 +222,7 @@ class AtomTypingHydrogen(object):
     def hasHeteroAtom(self, mol, atm):
         i = 0
         while i < atm.num_linkages:
-            if not mol.atoms.elementAt(atm.linkage[i]).element.lower() == "H".lower() and not mol.atoms.elementAt(atm.linkage[i]).element.lower() == "C".lower():
+            if not mol.atoms[atm.linkage[i]].element.lower() == "H".lower() and not mol.atoms[atm.linkage[i]].element.lower() == "C".lower():
                 return True
             i += 1
         return False
@@ -219,10 +233,10 @@ class AtomTypingHydrogen(object):
         hasAdjacentPolarizedGroup = False
         i = 0
         while i < atm.num_linkages:
-            atom_linked = mol.atoms.elementAt(atm.linkage[i])
+            atom_linked = mol.atoms[atm.linkage[i]]
             if atom_linked.element.lower() == "C".lower():
                 while j < atom_linked.num_linkages:
-                    atom_linked_linked = mol.atoms.elementAt(atom_linked.linkage[j])
+                    atom_linked_linked = mol.atoms[atom_linked.linkage[j]]
                     if not atom_linked_linked.isRingAtom and ((atom_linked_linked.element.lower() == "O".lower() and atom_linked_linked.num_linkages == 1) or isHalogenAtom(atom_linked_linked.element)):
                         hasAdjacentPolarizedGroup = True
                         break
@@ -240,7 +254,7 @@ class AtomTypingHydrogen(object):
     def hasProtonatedNitrogen(self, mol, atm):
         i = 0
         while i < atm.num_linkages:
-            if mol.atoms.elementAt(atm.linkage[i]).isProtonatedNitrogen:
+            if mol.atoms[atm.linkage[i]].isProtonatedNitrogen:
                 return True
             i += 1
         return False

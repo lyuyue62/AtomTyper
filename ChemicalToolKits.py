@@ -209,11 +209,11 @@ class ChemicalToolKits(object):
 
         if kind == 1:
         # BONDS: THE LOWEST PRIORITY ATOM ALWAYS COMES FIRST
-            array = atom_combi.split(" ")
+            array = atoms_combi.split(" ")
             atom_priority_i = int(hAtomPriority[array[0]])
             atom_priority_j = int(hAtomPriority[array[1]])
             if atom_priority_i <= atom_priority_j:
-                return atom_combi
+                return atoms_combi
             else:
                 return array[1] + " " + array[0]
 
@@ -223,7 +223,7 @@ class ChemicalToolKits(object):
             atom_priority_i = int(hAtomPriority[array[0]])
             atom_priority_k = int(hAtomPriority[array[2]])
             if atom_priority_i <= atom_priority_k:
-                return atom_combi
+                return atoms_combi
             else:
                 return array[2] + " " + array[1] + " " + array[0]
 
@@ -237,13 +237,13 @@ class ChemicalToolKits(object):
             atom_priority_k = int(hAtomPriority[array[2]])
             atom_priority_l = int(hAtomPriority[array[3]])
             if atom_priority_j < atom_priority_k:
-                return atom_combi
+                return atoms_combi
             else:
                 if atom_priority_k < atom_priority_j:
                     return array[3] + " " + array[2] + " " + array[1] + " " + array[0]
                 elif atom_priority_k == atom_priority_j:
                     if atom_priority_i <= atom_priority_l:
-                        return atom_combi
+                        return atoms_combi
                     else:
                         return array[3] + " " + array[2] + " " + array[1] + " " + array[0]
 
@@ -985,7 +985,7 @@ class ChemicalToolKits(object):
             atom = mol.atoms[i]
             atom_type = atom.atomType
             if atom.element.lower() == "C".lower() and atom.num_linkages == 3:
-                if not atom.isRingAtom and getNumberOfLinkedRingAtoms(mol, i) <= 1:
+                if not atom.isRingAtom and self.getNumberOfLinkedRingAtoms(mol, i) <= 1:
                     if atom.isCarbonyl and atom.numCarbonAtoms == 1 and atom.numOxygenAtoms == 2:
                         add_to_list = True
                     elif atom.isCarbonyl and atom.numCarbonAtoms == 1 and atom.numOxygenAtoms == 2:
@@ -1018,7 +1018,7 @@ class ChemicalToolKits(object):
                         add_to_list = True
                     elif hasDoubleBondedCarbon(mol, i) and atom.numCarbonAtoms == 2 and atom.numNitrogenAtoms == 1:
                         add_to_list = True
-                elif atom.isRingAtom and getNumberOfLinkedRingAtoms(mol, i) == 2:
+                elif atom.isRingAtom and self.getNumberOfLinkedRingAtoms(mol, i) == 2:
                     if atom.isImineCarbon and getFirstExocylicAtom(mol, i).lower() == "N".lower() and atom.numCarbonAtoms == 1 and atom.numNitrogenAtoms == 2:
                         add_to_list = True
                     elif atom.isImineCarbon and atom.numNitrogenAtoms == 3:
@@ -1046,16 +1046,17 @@ class ChemicalToolKits(object):
                     elif atom.isImineCarbon and atom.numNitrogenAtoms == 2 and atom.numOxygenAtoms == 1:
                         add_to_list = True
             elif atom.element.lower() == "N".lower() and atom.num_linkages == 3:
-                if not atom.isRingAtom and getNumberOfLinkedRingAtoms(mol, i) <= 1:
+                if not atom.isRingAtom and self.getNumberOfLinkedRingAtoms(mol, i) <= 1:
                     if self.hasDoubleBondedOxygen(mol, i) and atom.numCarbonAtoms == 1 and atom.numOxygenAtoms == 2:
                         add_to_list = True
-                    elif getNumberOfLinkedRingAtoms(mol, i) == 1 and atom.numCarbonAtoms == 1 and atom.numHydrogenAtoms == 2:
+                    elif self.getNumberOfLinkedRingAtoms(mol, i) == 1 and atom.numCarbonAtoms == 1 and atom.numHydrogenAtoms == 2:
                         add_to_list = True
             if add_to_list:
                 atmgrp = LinkedAtomGroup()
-                atmgrp.linked_atoms = "" + i
+                atmgrp.linked_atoms = "" + str(i)
+                j = 0
                 while j < 3:
-                    atmgrp.linked_atoms += "-" + atom.linkage[j]
+                    atmgrp.linked_atoms += "-" + str(atom.linkage[j])
                     j += 1
                 mol.impropers.append(atmgrp)
             i += 1

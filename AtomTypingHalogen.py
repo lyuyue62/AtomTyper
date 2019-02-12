@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+from Edge import Edge
+from Atom import Atom
+from Bond import Bond
 
 class AtomTypingHalogen(object):
     def __init__(self):
@@ -11,9 +14,9 @@ class AtomTypingHalogen(object):
         num_element = 0
         i = 0
         while i < num_atoms:
-            atom = mol.atoms.elementAt(i)
+            atom = mol.atoms[i]
             if atom.element.lower() == "CL".lower():
-                atom_linked = mol.atoms.elementAt(atom.linkage[0])
+                atom_linked = mol.atoms[atom.linkage[0]]
                 if atom_linked.isAromatic and atom_linked.numRingAtoms[0] == 6:
                     #  CLGR1: CHLB, chlorobenzene
                     atom.atomType = "CLGR1"
@@ -26,7 +29,7 @@ class AtomTypingHalogen(object):
                         #  CLGA3: TCLE, 1,1,1-trichloroethane
                         atom.atomType = "CLGA3"
             elif atom.element.lower() == "BR".lower():
-                atom_linked = mol.atoms.elementAt(atom.linkage[0])
+                atom_linked = mol.atoms[atom.linkage[0]]
                 if atom_linked.isAromatic and atom_linked.numRingAtoms[0] == 6:
                     #  BRGR1: BROB, bromobenzene
                     atom.atomType = "BRGR1"
@@ -42,17 +45,17 @@ class AtomTypingHalogen(object):
                         #  BRGA3: TBRE, 1,1,1-dibromoethane
                         atom.atomType = "BRGA3"
             elif atom.element.lower() == "I".lower():
-                atom_linked = mol.atoms.elementAt(atom.linkage[0])
+                atom_linked = mol.atoms[atom.linkage[0]]
                 if atom_linked.isAromatic and atom_linked.numRingAtoms[0] == 6:
                     #  IGR1: IODB, iodobenzene
                     atom.atomType = "IGR1"
             elif atom.element.lower() == "F".lower():
-                atom_linked = mol.atoms.elementAt(atom.linkage[0])
+                atom_linked = mol.atoms[atom.linkage[0]]
                 if atom_linked.isAromatic:
                     #  FGR1: aromatic flourine
                     atom.atomType = "FGR1"
                 else:
-                    num_element = countSpecificElement(mol, atom.linkage[0], "F")
+                    num_element = self.countSpecificElement(mol, atom.linkage[0], "F")
                     if num_element == 1:
                         #  FGA1: aliphatic fluorine, monofluoro
                         atom.atomType = "FGA1"
@@ -68,11 +71,11 @@ class AtomTypingHalogen(object):
             i += 1
 
     def countSpecificElement(self, mol, atm_index, element):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         num_elements = 0
         i = 0
         while i < atom.num_linkages:
-            if mol.atoms.elementAt(atom.linkage[i]).element.lower() == element.lower():
+            if mol.atoms[atom.linkage[i]].element.lower() == element.lower():
                 num_elements += 1
             i += 1
         return num_elements

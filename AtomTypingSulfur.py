@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+from Edge import Edge
+from Atom import Atom
+from Bond import Bond
 
 class AtomTypingSulfur(object):
     def __init__(self):
@@ -11,9 +14,9 @@ class AtomTypingSulfur(object):
         index = -1
         i = 0
         while i < num_atoms:
-            atom = mol.atoms.elementAt(i)
+            atom = mol.atoms[i]
             if atom.element.lower() == "S".lower():
-                atom_linked = mol.atoms.elementAt(atom.linkage[0])
+                atom_linked = mol.atoms[atom.linkage[0]]
                 if atom.num_linkages == 2:
                     #  SG311: sulphur, SH, -S-
                     atom.atomType = "SG311"
@@ -38,7 +41,7 @@ class AtomTypingSulfur(object):
                             #  SG3O2: neutral sulfone/sulfonamide sulfur
                             atom.atomType = "SG3O2"
                 else:
-                    if atom.numOxygenAtoms >= 2 and getCharge(mol, i) == 0:
+                    if atom.numOxygenAtoms >= 2 and self.getCharge(mol, i) == 0:
                         #  SG3O2: neutral sulfone/sulfonamide sulfur
                         atom.atomType = "SG3O2"
                     elif atom.numRingAtoms[0] == 5:
@@ -47,13 +50,13 @@ class AtomTypingSulfur(object):
             i += 1
 
     def getCharge(self, mol, atm_index):
-        atom = mol.atoms.elementAt(atm_index)
+        atom = mol.atoms[atm_index]
         atom_linked = Atom()
         num_OG2P1 = 0
         charge = 0
         i = 0
         while i < atom.num_linkages:
-            atom_linked = mol.atoms.elementAt(atom.linkage[i])
+            atom_linked = mol.atoms[atom.linkage[i]]
             if atom_linked.atomType != None and atom_linked.atomType.lower() == "OG2P1".lower():
                 num_OG2P1 += 1
             i += 1
