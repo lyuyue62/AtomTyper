@@ -1,0 +1,26 @@
+@<TRIPOS>MOLECULE
+C:\Users\Praveer\PycharmProjects\pdb_to_mol2_converter\data\pdb\imia.pdb
+    9     9     0     0     0
+SMALL
+GASTEIGER
+
+@<TRIPOS>ATOM
+      1 CG          1.5070   -0.0390   -0.0010 C.ar      1 IMI1        0.0000
+      2 HG          0.4320   -0.1050    0.0970 H         1 IMI1        0.0000
+      3 CD2         2.4290   -1.0280   -0.1510 C.ar      1 IMI1        0.0000
+      4 HD2         2.2900   -2.1020   -0.2070 H         1 IMI1        0.0000
+      5 ND1         2.2170    1.1410    0.0070 N.ar      1 IMI1        0.0000
+      6 HD1         1.8400    2.0720    0.1020 H         1 IMI1        0.0000
+      7 CE1         3.5340    0.8070   -0.1390 C.ar      1 IMI1        0.0000
+      8 HE1         4.3410    1.5450   -0.1680 H         1 IMI1        0.0000
+      9 NE2         3.7040   -0.4950   -0.2380 N.ar      1 IMI1        0.0000
+@<TRIPOS>BOND
+     1    9    3 ar
+     2    9    7 ar
+     3    4    3 1 
+     4    8    7 1 
+     5    3    1 ar
+     6    7    5 ar
+     7    1    5 ar
+     8    1    2 1 
+     9    5    6 1 

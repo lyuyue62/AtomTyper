@@ -1,0 +1,19 @@
+@<TRIPOS>MOLECULE
+C:\Users\Praveer\PycharmProjects\pdb_to_mol2_converter\data\pdb\mesh.pdb
+    6     5     0     0     0
+SMALL
+GASTEIGER
+
+@<TRIPOS>ATOM
+      1 H1         -2.1100   -0.3620   -0.0000 H         1 MES1        0.0000
+      2 H2         -1.2300    0.8990   -0.9010 H         1 MES1        0.0000
+      3 H3         -1.2160    0.8970    0.8910 H         1 MES1        0.0000
+      4 CM         -1.1980    0.2560   -0.0060 C.3       1 MES1        0.0000
+      5 S          -0.0400   -0.5790   -0.0160 S.3       1 MES1        0.0000
+      6 H4          0.7520   -0.0080   -0.0210 H         1 MES1        0.0000
+@<TRIPOS>BOND
+     1    2    4 1 
+     2    6    5 1 
+     3    5    4 1 
+     4    4    1 1 
+     5    4    3 1 

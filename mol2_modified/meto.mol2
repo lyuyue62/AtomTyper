@@ -1,0 +1,17 @@
+@<TRIPOS>MOLECULE
+C:\Users\Praveer\PycharmProjects\pdb_to_mol2_converter\data\pdb\meto.pdb
+    5     4     0     0     0
+SMALL
+GASTEIGER
+
+@<TRIPOS>ATOM
+      1 CB          1.9110    9.2280    8.1990 C.3       1 MET1        0.0000
+      2 OG          1.2640    9.2790    9.4690 O.3       1 MET1        0.0000
+      3 HB1         1.4330    8.4620    7.5470 H         1 MET1        0.0000
+      4 HB2         2.9860    8.9650    8.3180 H         1 MET1        0.0000
+      5 HB3         1.8450   10.2140    7.6870 H         1 MET1        0.0000
+@<TRIPOS>BOND
+     1    3    1 1 
+     2    5    1 1 
+     3    1    4 1 
+     4    1    2 1 

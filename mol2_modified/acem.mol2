@@ -1,0 +1,25 @@
+@<TRIPOS>MOLECULE
+C:\Users\Praveer\PycharmProjects\pdb_to_mol2_converter\data\pdb\acem.pdb
+    9     8     0     0     0
+SMALL
+GASTEIGER
+
+@<TRIPOS>ATOM
+      1 CC          1.1400    0.0490    0.0030 C.3       1 ACE1        0.0000
+      2 C           1.6700    1.4350    0.0010 C.2       1 ACE1        0.0000
+      3 N           3.0150    1.5860    0.0000 N.am      1 ACE1        0.0000
+      4 HC          3.3570    2.5200   -0.0020 H         1 ACE1        0.0000
+      5 HT          3.6040    0.7850    0.0010 H         1 ACE1        0.0000
+      6 O           0.9090    2.3960    0.0000 O.2       1 ACE1        0.0000
+      7 HC1         1.4750   -0.4950    0.9110 H         1 ACE1        0.0000
+      8 HC2         1.4740   -0.4980   -0.9040 H         1 ACE1        0.0000
+      9 HC3         0.0290    0.0880    0.0040 H         1 ACE1        0.0000
+@<TRIPOS>BOND
+     1    8    1 1 
+     2    4    3 1 
+     3    3    2 am
+     4    3    5 1 
+     5    6    2 2 
+     6    2    1 1 
+     7    1    9 1 
+     8    1    7 1 

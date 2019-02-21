@@ -1,0 +1,21 @@
+@<TRIPOS>MOLECULE
+C:\Users\Praveer\PycharmProjects\pdb_to_mol2_converter\data\pdb\mhpo.pdb
+    7     6     0     0     0
+SMALL
+GASTEIGER
+
+@<TRIPOS>ATOM
+      1 C1          1.1250    0.0090    0.0070 C.3       1 MHP1        0.0000
+      2 H11         1.4950   -0.4980    0.9250 H         1 MHP1        0.0000
+      3 H12         1.4880   -0.5410   -0.8890 H         1 MHP1        0.0000
+      4 H13         0.0150   -0.0120    0.0100 H         1 MHP1        0.0000
+      5 O2          1.5630    1.3580   -0.0330 O.3       1 MHP1        0.0000
+      6 O3          3.0250    1.2890   -0.0460 O.3       1 MHP1        0.0000
+      7 H3          3.2060    1.7610    0.7720 H         1 MHP1        0.0000
+@<TRIPOS>BOND
+     1    3    1 1 
+     2    6    5 1 
+     3    6    7 1 
+     4    5    1 1 
+     5    1    4 1 
+     6    1    2 1 

@@ -1,0 +1,28 @@
+@<TRIPOS>MOLECULE
+C:\Users\Praveer\PycharmProjects\pdb_to_mol2_converter\data\pdb\pyrm.pdb
+   10    10     0     0     0
+SMALL
+GASTEIGER
+
+@<TRIPOS>ATOM
+      1 N1         -0.0120   -0.1040   -0.0000 N.ar      1 PYR1        0.0000
+      2 C2          1.3570   -0.0750    0.0000 C.ar      1 PYR1        0.0000
+      3 H2          1.8730   -1.0390    0.0000 H         1 PYR1        0.0000
+      4 N3          2.1410    1.0490   -0.0000 N.ar      1 PYR1        0.0000
+      5 C4          1.4860    2.2090   -0.0000 C.ar      1 PYR1        0.0000
+      6 H4          2.0850    3.1140   -0.0000 H         1 PYR1        0.0000
+      7 C5          0.0860    2.2990    0.0000 C.ar      1 PYR1        0.0000
+      8 H5         -0.4210    3.2470    0.0000 H         1 PYR1        0.0000
+      9 C6         -0.6150    1.0840   -0.0000 C.ar      1 PYR1        0.0000
+     10 H6         -1.7000    1.0880   -0.0000 H         1 PYR1        0.0000
+@<TRIPOS>BOND
+     1    1    2 ar
+     2    1    9 ar
+     3    2    3 1 
+     4    2    4 ar
+     5    4    5 ar
+     6    5    6 1 
+     7    5    7 ar
+     8    7    8 1 
+     9    7    9 ar
+    10    9   10 1 
