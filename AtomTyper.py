@@ -15,7 +15,7 @@ if __name__=="__main__":
             sys.exit()
 
     mMolecule = sys.argv[1]
-    resn = nMolecule.split("/")[-1].split(".")[0]
+    resn = mMolecule.split("/")[-1].split(".")[0]
 
     # ========================================================
 
@@ -243,9 +243,6 @@ if __name__=="__main__":
     #       MAKE OUTPUTS
     # =========================
 
-    if os.path.isdir("output"):
-        shutil.rmtree("output")
-    os.mkdir("output")
 
     output_file = "output/%s.top" % resn
 
