@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-import sys
+import sys,os
+import shutil
 sys.dont_write_bytecode = True
 
 import math
@@ -14,6 +15,7 @@ if __name__=="__main__":
             sys.exit()
 
     mMolecule = sys.argv[1]
+    resn = nMolecule.split("/")[-1].split(".")[0]
 
     # ========================================================
 
@@ -32,7 +34,7 @@ if __name__=="__main__":
     from AtomTypingHalogen import AtomTypingHalogen
     from AtomTypingMiscellaneous import AtomTypingMiscellaneous
     from AtomTypingHydrogen import AtomTypingHydrogen
-    
+
     mCTK = ChemicalToolKits()
     mATC = AtomTypingCarbon()
     mATN = AtomTypingNitrogen()
@@ -241,7 +243,12 @@ if __name__=="__main__":
     #       MAKE OUTPUTS
     # =========================
 
-    output_file = "output.top"
+    if os.path.isdir("output"):
+        shutil.rmtree("output")
+    os.mkdir("output")
+
+    output_file = "output/%s.top" % resn
+
     with open (output_file, 'w') as out:
 
         for i in range(len(mol.atoms)):
@@ -269,8 +276,8 @@ if __name__=="__main__":
 
     out.close()
 
+    output_file = "output/%s.str" % resn
 
-    output_file = "output.str"
     with open(output_file, 'w') as out:
         kind_prev = 0
         kind_curr = 0
