@@ -93,7 +93,7 @@ class AtomTypingHydrogen(object):
                     if atom_linked.isRingAtom:
                         if atom_linked.isAromatic:
                             if atom_linked.numRingAtoms[0] == 6:
-                                if isTypeHGR62(mol, atom_linked):
+                                if self.isTypeHGR62(mol, atom_linked):
                                     #  HGR62: nonpolar H, neutral 6-mem planar ring C adjacent to heteroatom
                                     atom.atomType = "HGR62"
                                 if atom_linked.isProtonatedPyridine or atom_linked.isProtonatedPyrimidine:
@@ -105,6 +105,7 @@ class AtomTypingHydrogen(object):
                 elif element.lower() == "N".lower():
                     if not atom_linked.isAromatic:
                         if not atom_linked.isProtonatedNitrogen:
+                            num_methyl = self.countMethyl( mol, atom_linked );
                             if num_methyl == 2:
                                 #  HGAAM1: aliphatic H, NEUTRAL dimethylamine (#)
                                 atom.atomType = "HGAAM1"
@@ -238,9 +239,10 @@ class AtomTypingHydrogen(object):
         while i < atm.num_linkages:
             atom_linked = mol.atoms[atm.linkage[i]]
             if atom_linked.element.lower() == "C".lower():
+                j = 0
                 while j < atom_linked.num_linkages:
                     atom_linked_linked = mol.atoms[atom_linked.linkage[j]]
-                    if not atom_linked_linked.isRingAtom and ((atom_linked_linked.element.lower() == "O".lower() and atom_linked_linked.num_linkages == 1) or isHalogenAtom(atom_linked_linked.element)):
+                    if not atom_linked_linked.isRingAtom and ((atom_linked_linked.element.lower() == "O".lower() and atom_linked_linked.num_linkages == 1) or self.isHalogenAtom(atom_linked_linked.element)):
                         hasAdjacentPolarizedGroup = True
                         break
                     j += 1

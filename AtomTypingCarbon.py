@@ -17,21 +17,24 @@ class AtomTypingCarbon(object):
         while i < num_atoms:
             atom = mol.atoms[i]
             if atom.element.lower() == "C".lower():
+                is_ring_brdiging_atom = atom.isBridgingAtom
+
                 if atom.num_linkages == 2:
-                    if isInternalAlkyne(mol, i):
+                    if self.isInternalAlkyne(mol, i):
                         #  CG1T1: internal alkyne R-C#C
                         atom.atomType = "CG1T1"
-                    elif isTerminalAlkyne(mol, i):
+                    elif self.isTerminalAlkyne(mol, i):
                         #  CG1T2: terminal alkyne H-C#C
                         atom.atomType = "CG1T2"
-                    elif isForCyanoGroup(mol, i):
+                    elif self.isForCyanoGroup(mol, i):
                         #  CG1N1: C for cyano group
                         atom.atomType = "CG1N1"
-                    elif isCO2Carbon(mol, i):
+                    elif self.isCO2Carbon(mol, i):
                         #  CG2O7: CO2 carbon
                         atom.atomType = "CG2O7"
                 elif atom.num_linkages == 3:
                     if not atom.isConjugated:
+
                         if self.isInternalAlkene(mol, i) or self.isImine(mol, i):
                             #  CG2D1: internal alkene; RHC= ; imine C (-N=C-)
                             atom.atomType = "CG2D1"
@@ -66,12 +69,13 @@ class AtomTypingCarbon(object):
                         elif atom.numNitrogenAtoms == 2:
                             #  CG2N2 : conjugated C in amidinium cation (carbon linked to two N)
                             atom.atomType = "CG2N2"
+                    
                     if atom.isCarbonyl:
                         if atom.isAmide:
                             #  CG2O1: carbonyl C: amides (O=C-N)
                             atom.atomType = "CG2O1"
                         elif atom.numOxygenAtoms == 2 and atom.numNitrogenAtoms != 1:
-                            if isNeutralCarboxylicAcid(mol, i):
+                            if self.isNeutralCarboxylicAcid(mol, i):
                                 #  CG2O2: carbonyl C: esters, [neutral] carboxylic acids
                                 atom.atomType = "CG2O2"
                             else:
@@ -90,30 +94,30 @@ class AtomTypingCarbon(object):
                         if not is_ring_brdiging_atom:
                             if atom.numRingAtoms[0] == 5:
                                 if atom.isAromatic:
-                                    if atom.atomType != None and atom.atomType.lower() == "CG2DC1".lower() and hasExocyclicDoubleBond(mol, i):
+                                    if atom.atomType != None and atom.atomType.lower() == "CG2DC1".lower() and self.hasExocyclicDoubleBond(mol, i):
                                         #  CG25C1: same as CG2DC1 but in 5-membered ring with exocyclic double bond
                                         atom.atomType = "CG25C1"
                                         # *CG25C2: same as CG2DC2 but in 5-membered ring with exocyclic double bond
-                                    elif atom.atomType != None and atom.atomType.lower() == "CG2D1O".lower() and hasExocyclicDoubleBond(mol, i):
+                                    elif atom.atomType != None and atom.atomType.lower() == "CG2D1O".lower() and self.hasExocyclicDoubleBond(mol, i):
                                         #  CG251O: same as CG2D1O but in 5-membered ring with exocyclic double bond
                                         atom.atomType = "CG251O"
                                         # *CG252O: same as CG2D2O but in 5-membered ring with exocyclic double bond
                                     else:
                                         #  CG2R51: 5-mem ring, his CG, CD2(0), trp
                                         atom.atomType = "CG2R51"
-                                        if hasDoubleBondedNitrogen(mol, i):
+                                        if self.hasDoubleBondedNitrogen(mol, i):
                                             #  CG2R52: 5-mem ring, double bonded to N, PYRZ, pyrazole
                                             atom.atomType = "CG2R52"
-                                        if isTypeCG2R53(mol, i):
+                                        if self.isTypeCG2R53(mol, i):
                                             #  CG2R53: 5-mem ring, double bonded to heteroatom and adjacent to another heteroatom, purine C8, his CE1 (0,+1), 2PDO, kevo
                                             atom.atomType = "CG2R53"
-                                        if isBipyrroleCarbon(mol, i):
+                                        if self.isBipyrroleCarbon(mol, i):
                                             #  CG2R57: 5-mem ring, bipyrroles
                                             atom.atomType = "CG2R57"
                                 else:
                                     #  CG2R51: 5-mem ring, his CG, CD2(0), trp
                                     atom.atomType = "CG2R51"
-                                    if isTypeCG2R53(mol, i):
+                                    if self.isTypeCG2R53(mol, i):
                                         #  CG2R53: 5-mem ring, double bonded to heteroatom and adjacent to another heteroatom, purine C8, his CE1 (0,+1), 2PDO, kevo
                                         atom.atomType = "CG2R53"
                             elif atom.numRingAtoms[0] == 6:
@@ -126,13 +130,13 @@ class AtomTypingCarbon(object):
                                     if atom.isCarbonyl:
                                         #  CG2R63: 6-mem aromatic amide carbon (NA) (and other 6-mem aromatic carbonyls?)
                                         atom.atomType = "CG2R63"
-                                    if not atom.isCarbonyl and isTypeCG2R64(mol, i):
+                                    if not atom.isCarbonyl and self.isTypeCG2R64(mol, i):
                                         #  CG2R64: 6-mem aromatic amidine and guanidine carbon (between 2 or 3 Ns and double-bound to one of them), NA, PYRM
                                         atom.atomType = "CG2R64"
-                                    if isTypeCG2R66(mol, i):
+                                    if self.isTypeCG2R66(mol, i):
                                         #  CG2R66: 6-mem aromatic carbon bound to F
                                         atom.atomType = "CG2R66"
-                                    if isTypeCG2R67(mol, i, is_ring_brdiging_atom, aRingAromacity):
+                                    if self.isTypeCG2R67(mol, i, is_ring_brdiging_atom, aRingAromacity):
                                         #  CG2R67: 6-mem aromatic carbon of biphenyl
                                         atom.atomType = "CG2R67"
                             elif atom.numRingAtoms[0] == 7:
@@ -140,37 +144,43 @@ class AtomTypingCarbon(object):
                                     #  CG2R71: 7-mem ring arom C, AZUL, azulene, kevo
                                     atom.atomType = "CG2R71"
                         else:
+                            ring_index_5 = self.isAtomInFiveMemberedRing( mol, i )
+                            ring_index_6 = self.isAtomInSixMemberedRing( mol, i )
+                            ring_index_7 = self.isAtomInSevenMemberedRing( mol, i )
+
                             if ring_index_5 != -1:
                                 #  CG2R51: 5-mem ring, his CG, CD2(0), trp
                                 atom.atomType = "CG2R51"
-                            if ring_index_5 != -1 and isTypeCG2R53(mol, i):
+                            if ring_index_5 != -1 and self.isTypeCG2R53(mol, i):
                                 #  CG2R53: 5-mem ring, double bonded to heteroatom and adjacent to another heteroatom, purine C8, his CE1 (0,+1), 2PDO, kevo
                                 atom.atomType = "CG2R53"
-                            if ring_index_6 != -1 and bridgedAtomBelongsToAromaticRing(mol, i, 6, aRingAromacity):
+                            if ring_index_6 != -1 and self.bridgedAtomBelongsToAromaticRing(mol, i, 6, aRingAromacity):
                                 #  CG2R61: 6-mem aromatic C
                                 atom.atomType = "CG2R61"
                                 if atom.isProtonatedPyridine or atom.isProtonatedPyrimidine:
                                     #  CG2R62: 6-mem aromatic C for protonated pyridine (NIC) and rings containing carbonyls (see CG2R63) (NA)
                                     atom.atomType = "CG2R62"
                                 elif atom.ringHasCabonyl and not atom.isCarbonyl:
+                                    j = 0
                                     while j < 3:
                                         if atom.numRingAtoms[j] == 6 and aRingAromacity[atom.ringIndex[j]] and aRingHasCabonyl[atom.ringIndex[j]]:
                                             #  CG2R62: 6-mem aromatic C for protonated pyridine (NIC) and rings containing carbonyls (see CG2R63) (NA)
                                             atom.atomType = "CG2R62"
                                         j += 1
-                                if not atom.isCarbonyl and isTypeCG2R64(mol, i):
+                                if not atom.isCarbonyl and self.isTypeCG2R64(mol, i):
                                     #  CG2R64: 6-mem aromatic amidine and guanidine carbon (between 2 or 3 Ns and double-bound to one of them), NA, PYRM
                                     atom.atomType = "CG2R64"
-                                if isTypeCG2R67(mol, i, is_ring_brdiging_atom, aRingAromacity):
+                                if self.isTypeCG2R67(mol, i, is_ring_brdiging_atom, aRingAromacity):
                                     #  CG2R67: 6-mem aromatic carbon of biphenyl
                                     atom.atomType = "CG2R67"
-                            if isTypeCG2RC0(mol, i, aRingAromacity):
-                                if atom.atomType == None or not atom.atomType.lower() == "CG2R67".lower():
+                            if self.isTypeCG2RC0(mol, i, aRingAromacity):
+                                if atom.atomType == None or atom.atomType.lower() != "CG2R67".lower():
                                     #  CG2RC0: 6/5-mem ring bridging C, guanine C4,C5, trp
                                     atom.atomType = "CG2RC0"
-                            if ring_index_7 != -1 and bridgedAtomBelongsToAromaticRing(mol, i, 7, aRingAromacity):
+                            if ring_index_7 != -1 and self.bridgedAtomBelongsToAromaticRing(mol, i, 7, aRingAromacity):
                                 #  CG2RC7: sp2 ring connection with single bond(!), AZUL, azulene, kevo
                                 atom.atomType = "CG2RC7"
+                
                 elif atom.num_linkages == 4:
 
                     num_F = self.countSpecificElement( mol, i, "F" )
@@ -222,6 +232,7 @@ class AtomTypingCarbon(object):
                         atom.atomType = "CG322"
                     if atom.numSulfurAtoms == 1:
                         #  CG323: aliphatic C for CH2, thiolate carbon
+                        ndex = self.getIndex( mol, i, "S" );
                         if index != -1 and mol.atoms[index].isDeprotonatedSulfur:
                             atom.atomType = "CG323"
                     if atom.isRingAtom:
@@ -249,7 +260,7 @@ class AtomTypingCarbon(object):
                                     if self.hasAdjecentProtonatedNitrogen(mol, i):
                                         atom.atomType = "CG3C54"
                         else:
-                            if getAtomsOfSmallestRing(mol, i) <= 5:
+                            if self.getAtomsOfSmallestRing(mol, i) <= 5:
                                 #  CG3RC1: bridgehead in bicyclic systems containing at least one 5-membered or smaller ring
                                 atom.atomType = "CG3RC1"
             i += 1
@@ -557,10 +568,11 @@ class AtomTypingCarbon(object):
         index_j = -1
         if not is_ring_bridging_atom:
             if atom.numRingAtoms[0] == 6 and atom.isAromatic:
+                i = 0
                 while i < atom.num_linkages:
                     atom_linked = mol.atoms[atom.linkage[i]]
                     if not mol.atoms[atom.linkage[i]].isBridgingAtom and atom_linked.numRingAtoms[0] == 6 and atom_linked.isAromatic:
-                        if numOverlappedRings(mol, atom, atom_linked) == 0:
+                        if self.numOverlappedRings(mol, atom, atom_linked) == 0:
                             return True
                     i += 1
         else:
@@ -569,7 +581,7 @@ class AtomTypingCarbon(object):
                     atom_linked = mol.atoms[atom.linkage[i]]
                     ringIndex = self.isAtomInSixMemberedRing(mol, atom.linkage[i])
                     if mol.atoms[atom.linkage[i]].isBridgingAtom and ringIndex != -1 and aRingAromacity[ringIndex]:
-                        if numOverlappedRings(mol, atom, atom_linked) == 1:
+                        if self.numOverlappedRings(mol, atom, atom_linked) == 1:
                             return True
                     i += 1
         return False
@@ -578,6 +590,7 @@ class AtomTypingCarbon(object):
         num_overlapped_rings = 0
         i = 0
         while i < 3:
+            j = 0
             while j < 3:
                 if atm1.ringIndex[i] != -1 and atm2.ringIndex[j] != -1 and atm1.ringIndex[i] == atm2.ringIndex[j]:
                     num_overlapped_rings += 1

@@ -94,7 +94,6 @@ if __name__=="__main__":
     # ==========================
 
     vRings = mCTK.detectRings( mol )
-
     aRingAromacity = np.array((1, len(vRings)), dtype=bool)
     aRingHasCabonyl = np.array((1, len(vRings)), dtype=bool)
 
@@ -275,7 +274,6 @@ if __name__=="__main__":
     with open(output_file, 'w') as out:
         kind_prev = 0
         kind_curr = 0
-
         for i in range(len(vNonavailable)):
 
             array = vNonavailable[i].split( "\t" )

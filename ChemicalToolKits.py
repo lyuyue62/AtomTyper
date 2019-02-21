@@ -170,7 +170,7 @@ class ChemicalToolKits(object):
         try:
             with open (file_name) as f:
                 for line in f:
-                    array = line.strip().split('\t')
+                    array = line.strip().split()
                     hAtomPriority[array[0]] = array[1]
             f.close()
 
@@ -433,13 +433,16 @@ class ChemicalToolKits(object):
         vRings = []
         #  *** generate P-Graph ***
         vEdges = self.getInitialEdgesUsingBonds(mol)
+
         while self.getNumRemainingVertex(mol.atoms) != 0:
             vertex = self.chooseVertex( mol.atoms )
             self.clearEdges(vEdges, 7)
             self.remove(vertex, mol.atoms, vEdges, vRings)
+        
         self.removeNonRings(mol.atoms, vRings)
         self.removeRedundantRings(vRings)
         self.keepSmallestRings(vRings)
+
         return vRings
 
     def setRingAtoms(self, mol, vRings):
@@ -448,13 +451,15 @@ class ChemicalToolKits(object):
         i = 0
         while i < len(vRings):
             array = vRings[i].path.split(" ")
-            while len(array):
+            j = 0
+            while j < len(array):
                 index = int(array[j])
                 mol.atoms[index].isRingAtom = True
+                k = 0
                 while k < 3:
                     if mol.atoms[index].ringIndex[k] == -1:
                         mol.atoms[index].ringIndex[k] = i
-                        len(array)
+                        mol.atoms[index].numRingAtoms[k] = len(array)
                         break
                     k += 1
                 j += 1
@@ -482,28 +487,30 @@ class ChemicalToolKits(object):
             array = vRings[i].path.split(" ")
             # print  vRings[i).path ;
             #  *** check planarity ***
-            if len(array):
-                if isPlanarRing(mol, array):
+            if len(array) >= 5:
+                if self.isPlanarRing(mol, array):
                     aRingAromacity[i] = True
-                    while len(array):
+                    j = 0
+                    while j < len(array):
                         index = int(array[j])
                         mol.atoms[index].isAromatic = True
                         if mol.atoms[index].isCarbonyl:
                             aRingHasCabonyl[i] = True
                         j += 1
-            if isPyrrole(mol, array):
+            if self.isPyrrole(mol, array):
                 is_pyrrole = True
-            if isNeutralPyridine(mol, array):
+            if self.isNeutralPyridine(mol, array):
                 is_neutral_pyridine = True
-            if isProtonatedPyridine(mol, array):
+            if self.isProtonatedPyridine(mol, array):
                 is_protonated_pyridine = True
-            if isProtonatedPyrimidine(mol, array):
+            if self.isProtonatedPyrimidine(mol, array):
                 is_protonated_pyrimidine = True
-            if isFuran(mol, array):
+            if self.isFuran(mol, array):
                 is_furan = True
-            if isFuranose(mol, array):
+            if self.isFuranose(mol, array):
                 is_furanose = True
-            while len(array):
+            j = 0
+            while j < len(array):
                 index = int(array[j])
                 mol.atoms[index].isPyrrole = is_pyrrole
                 mol.atoms[index].isNeutralPyridine = is_neutral_pyridine
@@ -517,7 +524,7 @@ class ChemicalToolKits(object):
     def isPlanarRing(self, mol, array):
         atom = Atom()
         i = 0
-        while len(array):
+        while i < len(array):
             atom = mol.atoms[int(array[i])]
             if atom.num_linkages == 4:
                 return False
@@ -528,7 +535,8 @@ class ChemicalToolKits(object):
         atom = Atom()
         num_carbon_atoms = 0
         num_nitrogen_atoms = 0
-        if len(array):
+        if len(array) == 5:
+            i = 0
             while i < 5:
                 atom = mol.atoms[int(array[i])]
                 if not atom.isAromatic:
@@ -547,7 +555,8 @@ class ChemicalToolKits(object):
         num_carbon_atoms = 0
         num_nitrogen_atoms = 0
         num_protonated_N = 0
-        if len(array):
+        if len(array) == 6:
+            i = 0
             while i < 6:
                 atom = mol.atoms[int(array[i])]
                 if not atom.isAromatic:
@@ -568,7 +577,8 @@ class ChemicalToolKits(object):
         num_carbon_atoms = 0
         num_nitrogen_atoms = 0
         num_protonated_N = 0
-        if len(array):
+        if len(array) == 6:
+            i = 0
             while i < 6:
                 atom = mol.atoms[int(array[i])]
                 if not atom.isAromatic:
@@ -589,7 +599,8 @@ class ChemicalToolKits(object):
         num_carbon_atoms = 0
         num_nitrogen_atoms = 0
         num_protonated_N = 0
-        if len(array):
+        if len(array) == 6:
+            i = 0
             while i < 6:
                 atom = mol.atoms[int(array[i])]
                 if not atom.isAromatic:
@@ -611,7 +622,8 @@ class ChemicalToolKits(object):
         num_nitrogen_atoms = 0
         num_oxygen_atoms = 0
         isAromatic = True
-        if len(array):
+        if len(array) == 5:
+            i = 0
             while i < 5:
                 atom = mol.atoms[int(array[i])]
                 if not atom.isAromatic:
@@ -638,7 +650,8 @@ class ChemicalToolKits(object):
         num_nitrogen_atoms = 0
         num_oxygen_atoms = 0
         isAromatic = True
-        if len(array):
+        if len(array) == 5:
+            i = 0
             while i < 5:
                 index = int(array[i])
                 atom = mol.atoms[index]
@@ -815,7 +828,7 @@ class ChemicalToolKits(object):
         i = 0
         while i < len(mol.atoms):
             atom = mol.atoms[i]
-            if atom.isAromatic and atom.element.lower() == "C".lower() and atom.num_linkages == 3 and getNumUnassignedBondOrders(atom) == 1:
+            if atom.isAromatic and atom.element.lower() == "C".lower() and atom.num_linkages == 3 and self.getNumUnassignedBondOrders(atom) == 1:
                 while j < 3:
                     if atom.bondOrder[j] == 0:
                         atom.bondOrder[j] = 2
@@ -831,7 +844,7 @@ class ChemicalToolKits(object):
         i = 0
         while i < len(mol.atoms):
             atom = mol.atoms[i]
-            if atom.isAromatic and atom.element.lower() == "C".lower() and atom.num_linkages == 3 and getNumUnassignedBondOrders(atom) == 2:
+            if atom.isAromatic and atom.element.lower() == "C".lower() and atom.num_linkages == 3 and self.getNumUnassignedBondOrders(atom) == 2:
                 #  double bond for one bond
                 while j < 3:
                     if atom.bondOrder[j] == 0:
@@ -1020,11 +1033,11 @@ class ChemicalToolKits(object):
                         add_to_list = True
                     elif atom.isImineCarbon and atom.numCarbonAtoms == 1 and atom.numNitrogenAtoms == 2:
                         add_to_list = True
-                    elif hasDoubleBondedCarbon(mol, i) and atom.numNitrogenAtoms == 1 and atom.numCarbonAtoms == 1 and atom.numHydrogenAtoms == 1:
+                    elif self.hasDoubleBondedCarbon(mol, i) and atom.numNitrogenAtoms == 1 and atom.numCarbonAtoms == 1 and atom.numHydrogenAtoms == 1:
                         add_to_list = True
-                    elif hasDoubleBondedCarbon(mol, i) and atom.numOxygenAtoms == 1 and atom.numCarbonAtoms == 1 and atom.numHydrogenAtoms == 1:
+                    elif self.hasDoubleBondedCarbon(mol, i) and atom.numOxygenAtoms == 1 and atom.numCarbonAtoms == 1 and atom.numHydrogenAtoms == 1:
                         add_to_list = True
-                    elif hasDoubleBondedCarbon(mol, i) and atom.numCarbonAtoms == 2 and atom.numNitrogenAtoms == 1:
+                    elif self.hasDoubleBondedCarbon(mol, i) and atom.numCarbonAtoms == 2 and atom.numNitrogenAtoms == 1:
                         add_to_list = True
                 elif atom.isRingAtom and self.getNumberOfLinkedRingAtoms(mol, i) == 2:
                     if atom.isImineCarbon and getFirstExocylicAtom(mol, i).lower() == "N".lower() and atom.numCarbonAtoms == 1 and atom.numNitrogenAtoms == 2:
@@ -1037,7 +1050,7 @@ class ChemicalToolKits(object):
                         add_to_list = True
                     elif atom.isCarbonyl and atom.numCarbonAtoms == 2 and atom.numOxygenAtoms == 1:
                         add_to_list = True
-                    elif hasDoubleBondedCarbon(mol, i) and not atom.isAromatic and atom.numNitrogenAtoms == 1 and atom.numCarbonAtoms == 1 and atom.numHydrogenAtoms == 1:
+                    elif self.hasDoubleBondedCarbon(mol, i) and not atom.isAromatic and atom.numNitrogenAtoms == 1 and atom.numCarbonAtoms == 1 and atom.numHydrogenAtoms == 1:
                         add_to_list = True
                     elif atom.isCarbonyl and atom.numNitrogenAtoms == 1 and atom.numSulfurAtoms == 2:
                         add_to_list = True
@@ -1333,6 +1346,7 @@ class ChemicalToolKits(object):
             edge.path = str(edge.i) + " " + str(edge.j)
             vEdges.append(edge)
             b += 1
+
         return vEdges
 
     ## =====================================================
@@ -1464,6 +1478,7 @@ class ChemicalToolKits(object):
             self.removeLinkage(vMol, vertex)
 
         if len(vertex_related_edges) != 0 and len(array) >=2:
+
             for i in range(len(array)):
                 edge_i = vEdges[int(array[i])]
 
@@ -1538,7 +1553,6 @@ class ChemicalToolKits(object):
                         edge.path = edge.path.strip()
                         vRings.append( edge )
 
-                    
                     if isEdge == True:
                         edge.path = self.removeCommonVertex( edge_i.path, edge_j.path ) + " " + edge_j.path
                         edge.path = edge.path.strip()
@@ -1548,10 +1562,12 @@ class ChemicalToolKits(object):
             for i in range(len(array)):
                 vEdges[int( array[i] ) ].path = None
             
-            for i in range(len(vEdges)):
+            i = 0
+            while i < len(vEdges):
                 if vEdges[i].path == None:
                     del vEdges[i]
                     i -= 1
+                i += 1
                 
         self.removeLinkage(vMol, vertex)
 
@@ -1566,10 +1582,11 @@ class ChemicalToolKits(object):
         vertex_j = int()
         isCommonVertex = False
         i = 0
-        while len(array_i):
+        while i < len(array_i):
             vertex_i = int(array_i[i])
             isCommonVertex = False
-            while len(array_j):
+            j = 0
+            while j < len(array_j):
                 vertex_j = int(array_j[j])
                 if vertex_i == vertex_j:
                     isCommonVertex = True
@@ -1610,7 +1627,7 @@ class ChemicalToolKits(object):
         i = 0
         while i < len(vRings):
             array = vRings[i].path.split(" ")
-            if len(array):
+            if len(array) > num_atoms:
                 del vRings[i]
                 i -= 1
             i += 1
@@ -1620,7 +1637,7 @@ class ChemicalToolKits(object):
         i = 0
         while i < len(vEdges):
             array = vEdges[i].path.split(" ")
-            if len(array):
+            if len(array) > num_edges:
                 del vEdges[i]
                 i -= 1
             i += 1
@@ -1651,7 +1668,7 @@ class ChemicalToolKits(object):
     def removeNonRings(self, vMol, vRings):
         i = 0
         while i < len(vRings):
-            if not isRing(vMol, vRings[i]):
+            if not self.isRing(vMol, vRings[i]):
                 del vRings[i]
                 i -= 1
             i += 1
