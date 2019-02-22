@@ -16,6 +16,7 @@ if __name__=="__main__":
 
     mMolecule = sys.argv[1]
     resn = mMolecule.split("/")[-1].split(".")[0]
+    #mMolecule = sys.argv[0]
 
     # ========================================================
 
@@ -243,9 +244,12 @@ if __name__=="__main__":
     #       MAKE OUTPUTS
     # =========================
 
+    if os.path.isdir("output"):
+        shutil.rmtree("output")
+    os.mkdir("output")
 
     output_file = "output/%s.top" % resn
-
+    #output_file = "output.top"
     with open (output_file, 'w') as out:
 
         for i in range(len(mol.atoms)):
@@ -274,7 +278,7 @@ if __name__=="__main__":
     out.close()
 
     output_file = "output/%s.str" % resn
-
+    #output_file = "output.str"
     with open(output_file, 'w') as out:
         kind_prev = 0
         kind_curr = 0

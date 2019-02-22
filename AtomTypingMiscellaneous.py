@@ -19,6 +19,7 @@ class AtomTypingMiscellaneous(object):
             atom = mol.atoms[i]
             if atom.element.lower() == "P".lower():
                 if atom.numSulfurAtoms == 0:
+                    charge = self.getCharge( mol, i )
                     if charge == 0:
                         #  PG0: neutral phosphate
                         atom.atomType = "PG0"
@@ -29,6 +30,7 @@ class AtomTypingMiscellaneous(object):
                         #  PG2: phosphate -2
                         atom.atomType = "PG2"
                 else:
+                    j = 0
                     while j < atom.num_linkages:
                         atom_linked = mol.atoms[atom.linkage[j]]
                         if atom_linked.element.lower() == "O".lower() and atom_linked.num_linkages == 1:

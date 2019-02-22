@@ -85,7 +85,7 @@ class AtomTypingOxygen(object):
                     elif atom.numRingAtoms[0] == 6:
                         #  OG3R60: O in 6-mem cyclic enol ether (PY01, PY02) or ester
                         atom.atomType = "OG3R60"
-                        if not linkedCarbonHasDoundBond(mol, i):
+                        if not self.linkedCarbonHasDoundBond(mol, i):
                             #  OG3C61: DIOX, dioxane, ether in 6-membered ring !SHOULD WE MERGE THIS WITH OG3R60???
                             atom.atomType = "OG3C61"
                     elif atom.numRingAtoms[0] == 3 and atom.num_linkages == 2 and atom.numCarbonAtoms == 2:
@@ -143,7 +143,7 @@ class AtomTypingOxygen(object):
     def linkedCarbonHasDoundBond(self, mol, atm_index):
         atom = mol.atoms[atm_index]
         if atom.num_linkages == 2 and atom.numCarbonAtoms == 2:
-            if hasDoubleBond(mol, atom.linkage[0]) or hasDoubleBond(mol, atom.linkage[1]):
+            if self.hasDoubleBond(mol, atom.linkage[0]) or self.hasDoubleBond(mol, atom.linkage[1]):
                 return True
         return False
 

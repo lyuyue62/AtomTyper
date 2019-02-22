@@ -71,7 +71,7 @@ class AtomTypingHydrogen(object):
                             if mol.atoms[index].atomType.lower() == "NG3P0".lower():
                                 #  HGP5: polar H on quarternary ammonium salt (choline)
                                 atom.atomType = "HGP5"
-                    if atom_linked.num_linkages == 2 and hasTripleBond(atom_linked):
+                    if atom_linked.num_linkages == 2 and self.hasTripleBond(atom_linked):
                         #  HGPAM1: polar H, NEUTRAL dimethylamine (#), terminal alkyne H
                         atom.atomType = "HGPAM1"
                     #  HGR52: Aldehyde H, formamide H (RCOH); nonpolar H, neutral 5-mem planar ring C adjacent to heteroatom or + charge
@@ -80,14 +80,14 @@ class AtomTypingHydrogen(object):
                     #  CG2D1, CG2DC1 linked to protonated N
                     if atomType != None and (atomType.lower() == "CG2O1".lower() or atomType.lower() == "CG2O2".lower() or atomType.lower() == "CG2O3".lower() or atomType.lower() == "CG2O4".lower()):
                         atom.atomType = "HGR52"
-                    elif atomType != None and (atomType.lower() == "CG2R51".lower() or atomType.lower() == "CG2R52".lower() or atomType.lower() == "CG2R53".lower()) and hasHeteroAtom(mol, atom_linked):
+                    elif atomType != None and (atomType.lower() == "CG2R51".lower() or atomType.lower() == "CG2R52".lower() or atomType.lower() == "CG2R53".lower()) and self.hasHeteroAtom(mol, atom_linked):
                         atom.atomType = "HGR52"
-                    elif atomType != None and (atomType.lower() == "CG2D1".lower() or atomType.lower() == "CG2DC1".lower()) and hasProtonatedNitrogen(mol, atom_linked):
+                    elif atomType != None and (atomType.lower() == "CG2D1".lower() or atomType.lower() == "CG2DC1".lower()) and self.hasProtonatedNitrogen(mol, atom_linked):
                         atom.atomType = "HGR52"
-                    if atomType != None and atomType.lower() == "CG2R53".lower() and hasProtonatedNitrogen(mol, atom_linked):
+                    if atomType != None and atomType.lower() == "CG2R53".lower() and self.hasProtonatedNitrogen(mol, atom_linked):
                         #  HGR53: nonpolar H, +ve charge HIS he1(+1)
                         atom.atomType = "HGR53"
-                    if atom_linked.isAromatic and atom_linked.numRingAtoms[0] == 5 and atomType.lower() == "CG2R51".lower() and not hasHeteroAtom(mol, atom_linked):
+                    if atom_linked.isAromatic and atom_linked.numRingAtoms[0] == 5 and atomType.lower() == "CG2R51".lower() and not self.hasHeteroAtom(mol, atom_linked):
                         #  HGR51: nonpolar H, neutral 5-mem planar ring C, LJ based on benzene
                         atom.atomType = "HGR51"
                     if atom_linked.isRingAtom:

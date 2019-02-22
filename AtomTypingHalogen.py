@@ -24,7 +24,7 @@ class AtomTypingHalogen(object):
                     #  CLGR1: CHLB, chlorobenzene
                     atom.atomType = "CLGR1"
                 else:
-                    num_element = countSpecificElement(mol, atom.linkage[0], "CL")
+                    num_element = self.countSpecificElement(mol, atom.linkage[0], "CL")
                     if num_element == 1 or num_element == 2:
                         #  CLGA1: CLET, DCLE, chloroethane, 1,1-dichloroethane
                         atom.atomType = "CLGA1"
@@ -37,7 +37,7 @@ class AtomTypingHalogen(object):
                     #  BRGR1: BROB, bromobenzene
                     atom.atomType = "BRGR1"
                 else:
-                    num_element = countSpecificElement(mol, atom.linkage[0], "BR")
+                    num_element = self.countSpecificElement(mol, atom.linkage[0], "BR")
                     if num_element == 1:
                         #  BRGA1: BRET, bromoethane
                         atom.atomType = "BRGA1"

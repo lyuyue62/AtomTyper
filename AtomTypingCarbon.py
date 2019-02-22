@@ -87,7 +87,7 @@ class AtomTypingCarbon(object):
                         elif atom.isKetone:
                             #  CG2O5: carbonyl C: ketones
                             atom.atomType = "CG2O5"
-                        elif isUreaOrCarbonate(mol, i):
+                        elif self.isUreaOrCarbonate(mol, i):
                             #  CG2O6: carbonyl C: urea, carbonate (CS3, CNO2, CO3)
                             atom.atomType = "CG2O6"
                     if atom.isRingAtom:
@@ -346,6 +346,7 @@ class AtomTypingCarbon(object):
         i = 0
         while i < 3:
             index_i = mol.atoms[atom_i].ringIndex[i]
+            j = 0
             while j < 3:
                 index_j = mol.atoms[atom_j].ringIndex[j]
                 if index_i != -1 and index_j != -1 and index_i != index_j:
@@ -360,6 +361,7 @@ class AtomTypingCarbon(object):
         i = 0
         while i < 3:
             index_i = mol.atoms[atom_i].ringIndex[i]
+            j = 0
             while j < 3:
                 index_j = mol.atoms[atom_j].ringIndex[j]
                 if index_i != -1 and index_j != -1 and index_i == index_j:
@@ -441,6 +443,7 @@ class AtomTypingCarbon(object):
         i = 0
         while i < atom.num_linkages:
             if atom.bondOrder[i] == 2 and mol.atoms[atom.linkage[i]].element.lower() == "C".lower():
+                j = 0
                 while j < atom.num_linkages:
                     if j != i:
                         if not mol.atoms[atom.linkage[j]].element.lower() == "H".lower() and not mol.atoms[atom.linkage[j]].element.lower() == "C".lower():
@@ -472,6 +475,7 @@ class AtomTypingCarbon(object):
         atom = mol.atoms[atm_index]
         atom_linked = Atom()
         if atom.numOxygenAtoms == 2:
+            i = 0
             while i < atom.num_linkages:
                 atom_linked = mol.atoms[atom.linkage[i]]
                 if atom.bondOrder[i] == 1 and atom_linked.element.lower() == "O".lower() and atom_linked.num_linkages == 2:
@@ -525,6 +529,7 @@ class AtomTypingCarbon(object):
         atom = mol.atoms[atm_index]
         atom_linked = Atom()
         if atom.isPyrrole:
+            i = 0
             while i < atom.num_linkages:
                 atom_linked = mol.atoms[atom.linkage[i]]
                 if atom_linked.isPyrrole and not mol.atoms[atom.linkage[i]].isBridgingAtom and (atom.ringIndex[0] != atom_linked.ringIndex[0]):
@@ -546,6 +551,7 @@ class AtomTypingCarbon(object):
         # between 2 or 3 Ns and double-bound to one of them
         atom = mol.atoms[atm_index]
         if atom.numNitrogenAtoms == 2 or atom.numNitrogenAtoms == 3:
+            i = 0
             while i < atom.num_linkages:
                 if mol.atoms[atom.linkage[i]].element.lower() == "N".lower() and mol.atoms[atom.linkage[i]].isRingAtom and (atom.bondOrder[i] == 2 or mol.atoms[atom.linkage[i]].isAromatic):
                     return True
@@ -577,6 +583,7 @@ class AtomTypingCarbon(object):
                     i += 1
         else:
             if ringIndex != -1 and aRingAromacity[ringIndex]:
+                i = 0
                 while i < atom.num_linkages:
                     atom_linked = mol.atoms[atom.linkage[i]]
                     ringIndex = self.isAtomInSixMemberedRing(mol, atom.linkage[i])

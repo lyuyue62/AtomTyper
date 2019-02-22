@@ -53,10 +53,10 @@ class AtomTypingNitrogen(object):
                                 if atom.isAromatic:
                                     #  NG2R51: single bound neutral 5-mem planar (all atom types sp2) ring, his, trp pyrrole (fused)
                                     atom.atomType = "NG2R51"
-                                if isTypeNG2R53(mol, i):
+                                if self.isTypeNG2R53(mol, i):
                                     #  NG2R53: amide in 5-memebered NON-SP2 ring (slightly pyramidized), 2PDO, kevo
                                     atom.atomType = "NG2R53"
-                                if isBipyrroleNitrogen(mol, i):
+                                if self.isBipyrroleNitrogen(mol, i):
                                     #  NG2R57: 5-mem ring, bipyrroles
                                     atom.atomType = "NG2R57"
                                 if not atom.isAromatic and (atom.numHydrogenAtoms == 0 or atom.numHydrogenAtoms == 1) and not atom.isAmide:
@@ -65,20 +65,20 @@ class AtomTypingNitrogen(object):
                             elif iminCarbonIndex != -1 and mol.atoms[iminCarbonIndex].isProtonatedImineGroup:
                                 #  NG2R52: protonated schiff base, amidinium, guanidinium in 5-membered ring, HIS, 2HPP, kevo
                                 atom.atomType = "NG2R52"
-                            elif atom.isAromatic and atom.num_linkages == 3 and not hasDoubleBond(mol, i):
+                            elif atom.isAromatic and atom.num_linkages == 3 and not self.hasDoubleBond(mol, i):
                                 #  NG2R51: single bound neutral 5-mem planar (all atom types sp2) ring, his, trp pyrrole (fused)
                                 atom.atomType = "NG2R51"
                         elif atom.numRingAtoms[0] == 6:
                             if atom.isAromatic and atom.numHydrogenAtoms == 0:
                                 #  NG2R60: double bound neutral 6-mem planar ring, pyr1, pyzn
                                 atom.atomType = "NG2R60"
-                            if atom.isAromatic and (hasCarbonyl(mol, i) or atom.isProtonatedNitrogen):
+                            if atom.isAromatic and (self.hasCarbonyl(mol, i) or atom.isProtonatedNitrogen):
                                 #  NG2R61: single bound neutral 6-mem planar ring imino nitrogen; glycosyl linkage
                                 atom.atomType = "NG2R61"
-                            if isTypeNG2R62(mol, i):
+                            if self.isTypeNG2R62(mol, i):
                                 #  NG2R62: double bound 6-mem planar ring with heteroatoms in o or m, pyrd, pyrm
                                 atom.atomType = "NG2R62"
-                            if isTypeNG2R67(mol, i):
+                            if self.isTypeNG2R67(mol, i):
                                 #  NG2R67: 6-mem planar ring substituted with 6-mem planar ring (N-phenyl pyridinones etc.)
                                 atom.atomType = "NG2R67"
                     else:
@@ -86,19 +86,19 @@ class AtomTypingNitrogen(object):
                             #  NG2RC0: 6/5-mem ring bridging N, indolizine, INDZ, kevo
                             atom.atomType = "NG2RC0"
                 if not atom.isAmide and not atom.isProtonatedNitrogen and iminCarbonIndex == -1:
-                    if isTypeNG301(mol, i):
+                    if self.isTypeNG301(mol, i):
                         #  NG301: neutral trimethylamine nitrogen
                         atom.atomType = "NG301"
-                    elif atom.numRingAtoms[0] != 5 and isTypeNG311(mol, i):
+                    elif atom.numRingAtoms[0] != 5 and self.isTypeNG311(mol, i):
                         #  NG311: neutral dimethylamine nitrogen
                         atom.atomType = "NG311"
-                    elif isTypeNG321(mol, i):
+                    elif self.isTypeNG321(mol, i):
                         #  NG321: neutral methylamine nitrogen
                         atom.atomType = "NG321"
                     elif atom.num_linkages == 3 and atom.numHydrogenAtoms == 3:
                         #  NG331: neutral ammonia nitrogen
                         atom.atomType = "NG331"
-                    elif isTypeNG3N1(mol, i):
+                    elif self.isTypeNG3N1(mol, i):
                         #  NG3N1: N in hydrazine, HDZN
                         atom.atomType = "NG3N1"
                 #  NG2S3: external amine ring nitrogen (planar/aniline), phosphoramidate (PO3-NR2), sulfamate (SO3-NR2)
@@ -184,6 +184,7 @@ class AtomTypingNitrogen(object):
         i = 0
         while i < 3:
             index_i = mol.atoms[atom_i].ringIndex[i]
+            j = 0
             while j < 3:
                 index_j = mol.atoms[atom_j].ringIndex[j]
                 if index_i != -1 and index_j != -1 and index_i == index_j:
@@ -224,6 +225,7 @@ class AtomTypingNitrogen(object):
         atom = mol.atoms[atm_index]
         atom_linked = Atom()
         if atom.isPyrrole:
+            i = 0
             while i < atom.num_linkages:
                 atom_linked = mol.atoms[atom.linkage[i]]
                 if atom_linked.isPyrrole and not mol.atoms[atom.linkage[i]].isBridgingAtom and atom.ringIndex[0] != atom_linked.ringIndex[0]:
@@ -259,12 +261,14 @@ class AtomTypingNitrogen(object):
         atom = mol.atoms[atm_index]
         atom_linked = Atom()
         if atom.isAromatic and atom.num_linkages == 2:
+            i = 0
             while i < 2:
                 atom_linked = mol.atoms[atom.linkage[i]]
                 if atom_linked.isAromatic:
                     if not atom_linked.element.lower() == "C".lower():
                         return True
                     else:
+                        j = 0
                         while j < atom_linked.num_linkages:
                             if atom_linked.linkage[j] != atm_index and mol.atoms[atom_linked.linkage[j]].isAromatic and not mol.atoms[atom_linked.linkage[j]].element.lower() == "C".lower():
                                 return True
@@ -288,6 +292,7 @@ class AtomTypingNitrogen(object):
         isFiveMemberedRingAtom = False
         isSixMemberedRingAtom = False
         if atom.isAromatic:
+            i = 0
             while i < 3:
                 if atom.numRingAtoms[i] == 5:
                     isFiveMemberedRingAtom = True
@@ -334,6 +339,7 @@ class AtomTypingNitrogen(object):
         atom = mol.atoms[atm_index]
         atom_linked = Atom()
         if atom.isAmide:
+            i = 0
             while i < atom.num_linkages:
                 atom_linked = mol.atoms[atom.linkage[i]]
                 if atom_linked.isCarbonyl and atom.ringIndex[0] == atom_linked.ringIndex[0]:

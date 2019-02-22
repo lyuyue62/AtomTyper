@@ -340,6 +340,7 @@ class ChemicalToolKits(object):
             #  heavy atoms linked to OG2D2, OG312, SG302, OG2P1
             #  PG1 linked to OG2P1
             if atom.atomType.lower() == "OG2D2".lower() or atom.atomType.lower() == "OG312".lower() or atom.atomType.lower() == "SG302".lower() or atom.atomType.lower() == "OG2P1".lower():
+                j = 0
                 while j < 5:
                     if atom.linkage[j] != -1:
                         if mol.atoms[atom.linkage[j]].element[0] == 'C' or mol.atoms[atom.linkage[j]].element[0] == 'S':
@@ -357,6 +358,7 @@ class ChemicalToolKits(object):
             #  1
             #  heavy atoms linked to NG2P1, NG3P3, NG2R52, NG3P2, NG3P0, NG2R61, NG3P1
             if atom.atomType.lower() == "NG2P1".lower() or atom.atomType.lower() == "NG3P3".lower() or atom.atomType.lower() == "NG2R52".lower() or atom.atomType.lower() == "NG3P2".lower() or atom.atomType.lower() == "NG3P0".lower() or atom.atomType.lower() == "NG2R61".lower() or atom.atomType.lower() == "NG3P1".lower():
+                j = 0
                 while j < 5:
                     if atom.linkage[j] != -1:
                         if mol.atoms[atom.linkage[j]].element[0] == 'C':
@@ -797,6 +799,7 @@ class ChemicalToolKits(object):
                         mol.atoms[mol.bonds[i].i].bondOrder[j] = 1
                     break
                 j += 1
+            j = 0
             while j < 5:
                 if mol.atoms[mol.bonds[i].j].linkage[j] == mol.bonds[i].i:
                     if mol.bonds[i].bondType[0] == '1':
@@ -814,9 +817,11 @@ class ChemicalToolKits(object):
         while i < len(mol.atoms):
             atom = mol.atoms[i]
             if atom.isAromatic and atom.element.lower() == "C".lower() and self.hasDoubleBondedOxygen(mol, i) and atom.num_linkages == 3:
+                j = 0
                 while j < 3:
                     if not mol.atoms[atom.linkage[j]].element.lower() == "O".lower():
                         atom.bondOrder[j] = 1
+                        k = 0
                         while k < 5:
                             atom_linked = mol.atoms[atom.linkage[j]]
                             if atom_linked.linkage[k] == i:
@@ -829,9 +834,11 @@ class ChemicalToolKits(object):
         while i < len(mol.atoms):
             atom = mol.atoms[i]
             if atom.isAromatic and atom.element.lower() == "C".lower() and atom.num_linkages == 3 and self.getNumUnassignedBondOrders(atom) == 1:
+                j = 0
                 while j < 3:
                     if atom.bondOrder[j] == 0:
                         atom.bondOrder[j] = 2
+                        k = 0
                         while k < 5:
                             atom_linked = mol.atoms[atom.linkage[j]]
                             if atom_linked.linkage[k] == i:
@@ -846,9 +853,11 @@ class ChemicalToolKits(object):
             atom = mol.atoms[i]
             if atom.isAromatic and atom.element.lower() == "C".lower() and atom.num_linkages == 3 and self.getNumUnassignedBondOrders(atom) == 2:
                 #  double bond for one bond
+                j = 0
                 while j < 3:
                     if atom.bondOrder[j] == 0:
                         atom.bondOrder[j] = 2
+                        k = 0
                         while k < 5:
                             atom_linked = mol.atoms[atom.linkage[j]]
                             if atom_linked.linkage[k] == i:
@@ -858,9 +867,11 @@ class ChemicalToolKits(object):
                         break
                     j += 1
                 #  single bond for the other bond
+                j = 0
                 while j < 3:
                     if atom.bondOrder[j] == 0:
                         atom.bondOrder[j] = 1
+                        k = 0
                         while k < 5:
                             atom_linked = mol.atoms[atom.linkage[j]]
                             if atom_linked.linkage[k] == i:
@@ -987,6 +998,7 @@ class ChemicalToolKits(object):
         # print  len(vDihedral) ;
         i = 0
         while i < len(mol.dihedrals):
+            j = i + 1
             while j < len(mol.dihedrals):
                 if mol.dihedrals[i].linked_atoms.lower() == mol.dihedrals[j].linked_atoms.lower():
                     del mol.dihedrals[j]
@@ -1040,7 +1052,7 @@ class ChemicalToolKits(object):
                     elif self.hasDoubleBondedCarbon(mol, i) and atom.numCarbonAtoms == 2 and atom.numNitrogenAtoms == 1:
                         add_to_list = True
                 elif atom.isRingAtom and self.getNumberOfLinkedRingAtoms(mol, i) == 2:
-                    if atom.isImineCarbon and getFirstExocylicAtom(mol, i).lower() == "N".lower() and atom.numCarbonAtoms == 1 and atom.numNitrogenAtoms == 2:
+                    if atom.isImineCarbon and self.getFirstExocylicAtom(mol, i).lower() == "N".lower() and atom.numCarbonAtoms == 1 and atom.numNitrogenAtoms == 2:
                         add_to_list = True
                     elif atom.isImineCarbon and atom.numNitrogenAtoms == 3:
                         add_to_list = True
@@ -1605,10 +1617,11 @@ class ChemicalToolKits(object):
         vertex_j = int()
         isCommonVertex = False
         i = 0
-        while len(array_i):
+        while i < len(array_i):
             vertex_i = int(array_i[i])
             isCommonVertex = False
-            while len(array_j):
+            j = 0
+            while j < len(array_j):
                 vertex_j = int(array_j[j])
                 if vertex_i == vertex_j:
                     isCommonVertex = True
@@ -1653,10 +1666,11 @@ class ChemicalToolKits(object):
         while i < num_atoms:
             num_linkages = 0
             index_i = int(array[i])
+            j = 0
             while j < num_atoms:
                 index_j = int(array[j])
                 if i != j:
-                    dist = getDistance(vMol[index_i].R, vMol[index_j].R)
+                    dist = self.getDistance(vMol[index_i].R, vMol[index_j].R)
                     if dist < 1.85:
                         num_linkages += 1
                 j += 1
@@ -1695,7 +1709,7 @@ class ChemicalToolKits(object):
                                 break
 
                     if num_identical_atoms == len(array_2):
-                        vRings.pop(j)
+                        del vRings[j]
                         j = j - 1
 
 
@@ -1758,19 +1772,23 @@ class ChemicalToolKits(object):
         mergeRings = True
         while mergeRings:
             mergeRings = False
+            i = 0
             while i < len(vRings):
                 edge_i = vRings[i]
                 path_1 = edge_i.path
                 array_1 = path_1.split(" ")
+                j = i + 1
                 while j < len(vRings):
                     edge_j = vRings[j]
                     path_2 = edge_j.path
                     array_2 = path_2.split(" ")
-                    while len(array_1):
-                        while len(array_2):
+                    s1 = 0
+                    while s1 < len(array_1):
+                        s2 = 0
+                        while s2 < len(array_2):
                             if int(array_1[s1]) == int(array_2[s2]):
                                 mergeRings = True
-                                vRings[i].path = mergePaths(path_1, path_2)
+                                vRings[i].path = self.mergePaths(path_1, path_2)
                                 del vRings[j]
                                 break
                             s2 += 1
