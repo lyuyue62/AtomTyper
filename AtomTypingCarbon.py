@@ -163,7 +163,7 @@ class AtomTypingCarbon(object):
                                 elif atom.ringHasCabonyl and not atom.isCarbonyl:
                                     j = 0
                                     while j < 3:
-                                        if atom.numRingAtoms[j] == 6 and aRingAromacity[atom.ringIndex[j]] and aRingHasCabonyl[atom.ringIndex[j]]:
+                                        if atom.numRingAtoms[j] == 6 and aRingAromacity[0][atom.ringIndex[j]] and aRingHasCabonyl[0][atom.ringIndex[j]]:
                                             #  CG2R62: 6-mem aromatic C for protonated pyridine (NIC) and rings containing carbonyls (see CG2R63) (NA)
                                             atom.atomType = "CG2R62"
                                         j += 1
@@ -232,7 +232,7 @@ class AtomTypingCarbon(object):
                         atom.atomType = "CG322"
                     if atom.numSulfurAtoms == 1:
                         #  CG323: aliphatic C for CH2, thiolate carbon
-                        ndex = self.getIndex( mol, i, "S" );
+                        index = self.getIndex( mol, i, "S" );
                         if index != -1 and mol.atoms[index].isDeprotonatedSulfur:
                             atom.atomType = "CG323"
                     if atom.isRingAtom:
@@ -374,6 +374,7 @@ class AtomTypingCarbon(object):
         atom = mol.atoms[atm_index]
         atom_linked = Atom()
         if atom.isRingAtom:
+            i = 0
             while i < atom.num_linkages:
                 atom_linked = mol.atoms[atom.linkage[i]]
                 if not self.hasSameRingIndex(mol, atm_index, atom.linkage[i]) and atom.bondOrder[i] == 2:
@@ -385,7 +386,7 @@ class AtomTypingCarbon(object):
         atom = mol.atoms[atm_index]
         i = 0
         while i < 3:
-            if atom.ringIndex[i] != -1 and atom.numRingAtoms[i] == num_ring_atoms and aRingAromacity[atom.ringIndex[i]]:
+            if atom.ringIndex[i] != -1 and atom.numRingAtoms[i] == num_ring_atoms and aRingAromacity[0][atom.ringIndex[i]]:
                 return True
             i += 1
         return False
@@ -394,7 +395,7 @@ class AtomTypingCarbon(object):
         atom = mol.atoms[atm_index]
         i = 0
         while i < 3:
-            if atom.ringIndex[i] != -1 and not aRingAromacity[atom.ringIndex[i]]:
+            if atom.ringIndex[i] != -1 and not aRingAromacity[0][atom.ringIndex[i]]:
                 return False
             i += 1
         return True
@@ -582,12 +583,14 @@ class AtomTypingCarbon(object):
                             return True
                     i += 1
         else:
-            if ringIndex != -1 and aRingAromacity[ringIndex]:
+            ringIndex = self.isAtomInSixMemberedRing( mol, atm_index )
+
+            if ringIndex != -1 and aRingAromacity[0][ringIndex]:
                 i = 0
                 while i < atom.num_linkages:
                     atom_linked = mol.atoms[atom.linkage[i]]
                     ringIndex = self.isAtomInSixMemberedRing(mol, atom.linkage[i])
-                    if mol.atoms[atom.linkage[i]].isBridgingAtom and ringIndex != -1 and aRingAromacity[ringIndex]:
+                    if mol.atoms[atom.linkage[i]].isBridgingAtom and ringIndex != -1 and aRingAromacity[0][ringIndex]:
                         if self.numOverlappedRings(mol, atom, atom_linked) == 1:
                             return True
                     i += 1
@@ -609,7 +612,7 @@ class AtomTypingCarbon(object):
         atom = mol.atoms[atm_index]
         fiveMemberedRingIndex = self.isAtomInFiveMemberedRing(mol, atm_index)
         sixMemberedRingIndex = self.isAtomInSixMemberedRing(mol, atm_index)
-        if fiveMemberedRingIndex != -1 and sixMemberedRingIndex != -1 and aRingAromacity[sixMemberedRingIndex]:
+        if fiveMemberedRingIndex != -1 and sixMemberedRingIndex != -1 and aRingAromacity[0][sixMemberedRingIndex]:
             return True
         return False
 

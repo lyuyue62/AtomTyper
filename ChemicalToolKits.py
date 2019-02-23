@@ -441,6 +441,7 @@ class ChemicalToolKits(object):
             self.clearEdges(vEdges, 7)
             self.remove(vertex, mol.atoms, vEdges, vRings)
         
+
         self.removeNonRings(mol.atoms, vRings)
         self.removeRedundantRings(vRings)
         self.keepSmallestRings(vRings)
@@ -491,13 +492,13 @@ class ChemicalToolKits(object):
             #  *** check planarity ***
             if len(array) >= 5:
                 if self.isPlanarRing(mol, array):
-                    aRingAromacity[i] = True
+                    aRingAromacity[0][i] = True
                     j = 0
                     while j < len(array):
                         index = int(array[j])
                         mol.atoms[index].isAromatic = True
                         if mol.atoms[index].isCarbonyl:
-                            aRingHasCabonyl[i] = True
+                            aRingHasCabonyl[0][i] = True
                         j += 1
             if self.isPyrrole(mol, array):
                 is_pyrrole = True
@@ -956,7 +957,7 @@ class ChemicalToolKits(object):
         #       print  len(vAngle) ;
         #
 
-    def setDihderalList(self, mol):
+    def setDihedralList(self, mol):
         atmgrp = LinkedAtomGroup()
         array = []
         i = 0
@@ -1299,7 +1300,7 @@ class ChemicalToolKits(object):
             if atom.isProtonatedNitrogen == True:
                 for j in range(atom.num_linkages):
                     if mol.atoms[atom.linkage[j]].isImineCarbon:
-                        mol.atoms[atom.linkage[j]].isPortonatedImineGroup = True
+                        mol.atoms[atom.linkage[j]].isProtonatedImineGroup = True
                         break
 
             if atom.isDeprotonatedOxygen == True:
@@ -1657,10 +1658,7 @@ class ChemicalToolKits(object):
 
     def isRing(self, vMol, ring):
         array = ring.path.split(" ")
-        num_atoms = int()
-        index_i = int()
-        index_j = int()
-        dist = float()
+        num_atoms = len(array)
         num_linkages = 0
         i = 0
         while i < num_atoms:
@@ -1686,16 +1684,18 @@ class ChemicalToolKits(object):
                 del vRings[i]
                 i -= 1
             i += 1
+            
 
     def removeRedundantRings(self, vRings ):
 
         num_identical_atoms = 0
-
-        for i in range(len(vRings)):
+        i = 0
+        while i < len(vRings):
             edge_i = vRings[i]
             array_1 = edge_i.path.split(" ")
 
-            for j in range(i+1, len(vRings)):
+            j = i + 1
+            while j < len(vRings):
                 edge_j = vRings[j]
                 array_2 = edge_j.path.split(" ")
 
@@ -1711,6 +1711,8 @@ class ChemicalToolKits(object):
                     if num_identical_atoms == len(array_2):
                         del vRings[j]
                         j = j - 1
+                j += 1
+            i += 1
 
 
     def keepSmallestRings(self, vRings ):

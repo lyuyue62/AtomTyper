@@ -89,7 +89,7 @@ if __name__=="__main__":
     # ===========================================
 
     mCTK.setAngleList( mol )
-    mCTK.setDihderalList( mol )
+    mCTK.setDihedralList( mol )
 
 
     # ==========================
@@ -97,12 +97,12 @@ if __name__=="__main__":
     # ==========================
 
     vRings = mCTK.detectRings( mol )
-    aRingAromacity = np.array((1, len(vRings)), dtype=bool)
-    aRingHasCabonyl = np.array((1, len(vRings)), dtype=bool)
-
+    aRingAromacity = np.zeros((1, len(vRings)), dtype=bool)
+    aRingHasCabonyl = np.zeros((1, len(vRings)), dtype=bool)
+    
     for i in range(len(vRings)):
-        aRingAromacity[i] = False
-        aRingHasCabonyl[i] = False
+        aRingAromacity[0][i] = False
+        aRingHasCabonyl[0][i] = False
 
 
     # *** remove large rings
@@ -200,6 +200,7 @@ if __name__=="__main__":
     hTemp = {}
 
     for i in range(num_bonds):
+
         atoms_combi = mol.atoms[ mol.bonds[i].i ].atomType + " " + mol.atoms[ mol.bonds[i].j ].atomType
         atoms_combi_sorted = mCTK.orderAtoms( hAtomPriority, atoms_combi, 1 )
 

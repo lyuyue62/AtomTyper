@@ -151,7 +151,7 @@ class AtomTypingHydrogen(object):
                     if atom_linked.isProtonatedNitrogen and atomType.lower() == "NG2R61".lower():
                         #  HGP2: polar H, +ve charge
                         atom.atomType = "HGP2"
-                if atom_linked.element.lower() == "N".lower() and not atom_linked.isProtonatedNitrogen and atom_linked.numHydrogenAtoms == 2 and hasAromaticBond(mol, atom_linked):
+                if atom_linked.element.lower() == "N".lower() and not atom_linked.isProtonatedNitrogen and atom_linked.numHydrogenAtoms == 2 and self.hasAromaticBond(mol, atom_linked):
                     #  HGP4: polar H, neutral conjugated -NH2 group (NA bases)
                     atom.atomType = "HGP4"
             i += 1

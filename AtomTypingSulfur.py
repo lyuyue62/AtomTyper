@@ -37,6 +37,7 @@ class AtomTypingSulfur(object):
                         #  SG3O3: neutral sulfoxide sulfur
                         atom.atomType = "SG3O3"
                     if atom.numOxygenAtoms >= 2:
+                        charge = self.getCharge( mol, i )
                         if charge == -1:
                             #  SG3O1: sulfate -1 sulfur
                             atom.atomType = "SG3O1"

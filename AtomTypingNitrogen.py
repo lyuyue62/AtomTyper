@@ -82,7 +82,7 @@ class AtomTypingNitrogen(object):
                                 #  NG2R67: 6-mem planar ring substituted with 6-mem planar ring (N-phenyl pyridinones etc.)
                                 atom.atomType = "NG2R67"
                     else:
-                        if isTypeNG2RC0(mol, i):
+                        if self.isTypeNG2RC0(mol, i):
                             #  NG2RC0: 6/5-mem ring bridging N, indolizine, INDZ, kevo
                             atom.atomType = "NG2RC0"
                 if not atom.isAmide and not atom.isProtonatedNitrogen and iminCarbonIndex == -1:
@@ -329,6 +329,7 @@ class AtomTypingNitrogen(object):
         atom = mol.atoms[atm_index]
         atom_linked = Atom()
         if atom.num_linkages == 3:
+            index = self.getIndexElement( mol, atm_index, "N" )
             if index != -1:
                 atom_linked = mol.atoms[index]
                 if atom_linked.numHydrogenAtoms == 2 or atom_linked.numHydrogenAtoms == 1:
