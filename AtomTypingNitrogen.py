@@ -24,6 +24,7 @@ class AtomTypingNitrogen(object):
                 #  NG2D1: N for neutral imine/Schiff's base (C=N-R, acyclic amidine, gunaidine)
                 #  NG2P1: N for protonated imine/Schiff's base (C=N(+)H-R, acyclic amidinium, guanidinium)
                 iminCarbonIndex = self.getIndexOfImineCarbon(mol, i)
+
                 if iminCarbonIndex != -1:
                     if not mol.atoms[iminCarbonIndex].isProtonatedImineGroup:
                         atom.atomType = "NG2D1"
@@ -205,6 +206,7 @@ class AtomTypingNitrogen(object):
     def getIndexOfImineCarbon(self, mol, atm_index):
         atom = mol.atoms[atm_index]
         atom_linked = Atom()
+
         if atom.isRingAtom:
             i = 0
             while i < atom.num_linkages:

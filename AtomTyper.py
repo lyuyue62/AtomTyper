@@ -193,6 +193,7 @@ if __name__=="__main__":
     num_dihedrals = len(mol.dihedrals)
     num_improper = len(mol.impropers)
 
+
     atoms_combi = ""
     atoms_combi_sorted = ""
 
@@ -213,7 +214,6 @@ if __name__=="__main__":
         array = mol.angles[i].linked_atoms.split( "-" )
         atoms_combi = mol.atoms[ int (array[0]) ].atomType + " " + mol.atoms[ int(array[1] ) ].atomType + " " + mol.atoms[ int( array[2] ) ].atomType
         atoms_combi_sorted = mCTK.orderAtoms( hAtomPriority, atoms_combi, 2 )
-
         if atoms_combi_sorted not in hAngleParameter:
             if(atoms_combi_sorted not in hTemp):
                 hTemp[ atoms_combi_sorted] = "1"
@@ -245,9 +245,11 @@ if __name__=="__main__":
     #       MAKE OUTPUTS
     # =========================
 
+    """
     if os.path.isdir("output"):
         shutil.rmtree("output")
     os.mkdir("output")
+    """
 
     output_file = "output/%s.top" % resn
     #output_file = "output.top"

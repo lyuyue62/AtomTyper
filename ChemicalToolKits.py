@@ -409,7 +409,7 @@ class ChemicalToolKits(object):
             if value != None:
                 mol.bonds[i].increment = Double.parseDouble(value)
             else:
-                print "No available bond charge increment: " + atom_combi
+                print ("No available bond charge increment: " + atom_combi)
             i += 1
 
     def assignAtomChargesUsingBondIncrement(self, mol):
@@ -898,10 +898,10 @@ class ChemicalToolKits(object):
         num_atoms = len(mol.atoms)
         total_bond_order = 0
         i = 0
-        j = 0
         while i < num_atoms:
             atom = mol.atoms[i]
             total_bond_order = 0
+            j = 0
             while j < 5:
                 total_bond_order += atom.bondOrder[j]
                 j += 1
@@ -1158,7 +1158,7 @@ class ChemicalToolKits(object):
             for j in range(3):
                 consecutive_bonds = consecutive_bonds + mol.bonds[int(array[j])].bondType
 
-            if (consecutive_elements.lower() == "CCCC".lower()) or (consecutive_elements.lower() == "CCC0".lower()) or (consecutive_elements.lower() == "0CCC".lower())\
+            if (consecutive_elements.lower() == "CCCC".lower()) or (consecutive_elements.lower() == "CCCO".lower()) or (consecutive_elements.lower() == "OCCC".lower())\
                 or (consecutive_elements.lower() == "NCCC".lower()) or (consecutive_elements.lower() == "CCCN".lower()) :
                 if (consecutive_bonds.lower() == "212") or (consecutive_bonds.lower() == "21ar") or (consecutive_bonds.lower() == "ar12"):
                     array = mol.dihedrals[i].linked_atoms.split("-")
@@ -1237,13 +1237,14 @@ class ChemicalToolKits(object):
 
     def setImineCarbon(self, mol ):
         num_atoms = len(mol.atoms)
+        atom = Atom()
 
         for i in range(num_atoms):
             atom = mol.atoms[i]
 
             if atom.element.lower() == "c" and atom.num_linkages == 3 and atom.numNitrogenAtoms >= 1:
                 for j in range(atom.num_linkages):
-                    if atom.bondOrder[j] == 2 or atom.bondType[j].lower() == "ar" and mol.atoms[atom.linkage[j]].element.lower() == "n":
+                    if (atom.bondOrder[j] == 2 or atom.bondType[j].lower() == "ar") and mol.atoms[atom.linkage[j]].element.lower() == "n":
                         atom.isImineCarbon = True
                         break
 
@@ -1285,18 +1286,18 @@ class ChemicalToolKits(object):
     def setAtomProtonationState(self, mol ):
         for i in range(len(mol.atoms)):
             atom = mol.atoms[i]
-
-            if atom.element.lower() == "n" and atom.isAromatic == False and atom.num_linkages == 4:
+            if atom.element.lower() == "n" and not atom.isAromatic and atom.num_linkages == 4:
                 atom.isProtonatedNitrogen = True
-            elif atom.element.lower() == "n" and atom.isAromatic == False and atom.num_linkages == 3 and atom.numHydrogenAtoms >= 1 and atom.totalBondOrder == 4:
+            elif atom.element.lower() == "n" and not atom.isAromatic and atom.num_linkages == 3 and atom.numHydrogenAtoms >= 1 and atom.totalBondOrder == 4:
                 atom.isProtonatedNitrogen = True
-            elif atom.element.lower() == "n" and atom.isAromatic == True and atom.num_linkages == 3 and atom.numHydrogenAtoms == 1:
+            elif atom.element.lower() == "n" and atom.isAromatic and atom.num_linkages == 3 and atom.numHydrogenAtoms == 1:
                 atom.isProtonatedNitrogen = True
             elif atom.element.lower() == "s" and atom.num_linkages == 1 and atom.numHydrogenAtoms == 0:
                 atom.isDeprotonatedSulfur = True
             elif atom.element.lower() == "o" and atom.num_linkages == 1 and atom.bondOrder[0] == 1 and atom.numHydrogenAtoms == 0:
                 atom.isDeprotonatedOxygen = True
 
+          
             if atom.isProtonatedNitrogen == True:
                 for j in range(atom.num_linkages):
                     if mol.atoms[atom.linkage[j]].isImineCarbon:
